@@ -1,0 +1,2477 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl" id="htmlRoot">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>مناسخہ کیلکولیٹر | اسلامی کیلکولیٹر پرو</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Self-hosted fonts: Jameel Noori Nastaleeq for Urdu, Al Qalam Quran Majeed Web for Arabic */
+    @font-face {
+      font-family: 'Jameel Noori Nastaleeq';
+      src: url('fonts/jameel-noori-nastaleeq.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Al Qalam Quran Majeed Web';
+      src: url('fonts/al-qalam-quran.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    :root {
+      --font-urdu: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', 'Amiri', serif;
+      --font-latin: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    html[dir="rtl"] body {
+      font-family: var(--font-urdu), var(--font-latin);
+      line-height: 2.0;
+    }
+    html[dir="ltr"] body {
+      font-family: var(--font-latin);
+      line-height: 1.6;
+    }
+    .font-arabic {
+      font-family: 'Al Qalam Quran Majeed Web', 'Amiri', serif;
+      line-height: 2;
+    }
+    .font-mono-num {
+      font-family: 'Inter', monospace;
+      direction: ltr;
+      display: inline-block;
+    }
+    .emerald-gradient {
+      background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #0f766e 100%);
+    }
+    .gold-badge {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      color: #92400e;
+      border: 1px solid #f59e0b;
+    }
+    .card-shadow {
+      box-shadow: 0 4px 20px -2px rgba(6, 78, 59, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+      }
+      .print-break {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Toast Notification -->
+  <div id="toastBox" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 hidden no-print">
+    <div id="toastInner" class="bg-emerald-900 text-white px-5 py-3 rounded-xl shadow-xl border border-emerald-400/30 flex items-center gap-3 text-sm font-medium">
+      <span id="toastIcon">✅</span>
+      <span id="toastText">عمل مکمل ہو گیا</span>
+    </div>
+  </div>
+
+    <!-- Site Navbar -->
+  <nav class="site-navbar no-print">
+    <div class="site-navbar-inner">
+      <a class="site-brand" href="index.html"><span>🕌</span><span>اسلامی کیلکولیٹر پرو</span></a>
+      <div class="site-navlinks">
+        <a href="index.html" data-nav="home" data-i18n="tabHome">ہوم</a>
+        <a href="mirath.html" data-nav="mirath" data-i18n="tabMirath">میراث کیلکولیٹر (Inheritance)</a>
+        <a href="zakat.html" data-nav="zakat" data-i18n="tabZakat">زکوٰۃ و عشر کیلکولیٹر (Zakat & Ushr)</a>
+        <a href="ushr.html" data-nav="ushr" data-i18n="tabUshr">عشر کیلکولیٹر</a>
+        <a href="munasakha.html" data-nav="munasakha" data-i18n="tabMunasakha" class="is-active">مناسخہ (Multi-Stage Death)</a>
+        <a href="guides.html" data-nav="guides" data-i18n="tabGuides">شرعی اصول و رہنمائی (Guides)</a>
+      </div>
+      <select id="langSwitch" class="lang-switch" onchange="setLanguage(this.value)" aria-label="Language">
+        <option value="ur">اردو</option>
+        <option value="ro">Roman Urdu</option>
+        <option value="en">English</option>
+        <option value="hi">हिंदी</option>
+      </select>
+    </div>
+  </nav>
+
+  <header class="emerald-gradient text-white py-5 px-4 shadow-lg relative overflow-hidden">
+    <div class="max-w-7xl mx-auto text-center relative z-10">
+      <p class="font-arabic text-amber-300 text-base md:text-lg tracking-wide mb-1">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِیْمِ</p>
+      <h1 class="text-xl md:text-3xl font-bold text-white">مناسخہ کیلکولیٹر (Munasakha Calculator)</h1>
+    </div>
+  </header>
+
+  <main class="max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 flex-1 space-y-6">
+
+<section id="panel-munasakha" class="space-y-6">
+      <div class="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 card-shadow space-y-5">
+        <div class="border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🔗</span>
+            <h2 class="text-xl font-bold text-emerald-950">مناسخہ کیلکولیٹر (Munasakha: Successive Deaths Before Distribution)</h2>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">
+            جب پہلی میت کا ترکہ تقسیم ہونے سے پہلے ہی کوئی وارث بھی فوت ہو جائے تو اس وارث کا حصہ ضائع نہیں ہوتا بلکہ اس کے اپنے شرعی ورثاء میں منتقل ہو جاتا ہے۔
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <label for="munasakhaHeirSelect" class="block text-xs font-bold text-slate-700 mb-1">مرحلہ ۱ سے کون سا وارث بعد میں فوت ہوا؟</label>
+            <select id="munasakhaHeirSelect" onchange="onMunasakhaHeirChange()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white font-semibold"></select>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <label for="munasakhaStage1Share" class="block text-xs font-bold text-slate-700 mb-1">اس فوت شدہ وارث کا مرحلہ ۱ سے ملنے والا حصہ (رقم)</label>
+            <input type="number" id="munasakhaStage1Share" min="0" placeholder="فوت شدہ وارث کا فی کس حصہ (اوپر منتخب کرنے پر خود بھر جائے گا)" oninput="calculateMunasakha()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-base font-bold font-mono-num bg-white" />
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <label for="munasakhaGender2" class="block text-xs font-bold text-slate-700 mb-1">فوت شدہ وارث (میتِ ثانی) کی جنس</label>
+            <select id="munasakhaGender2" onchange="calculateMunasakha()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white font-semibold">
+              <option value="male">مرد (Male)</option>
+              <option value="female">عورت (Female)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bg-emerald-50/50 rounded-xl p-4 border border-emerald-200 space-y-3">
+          <h3 class="text-sm font-bold text-emerald-950">میتِ ثانی (بعد میں فوت ہونے والے وارث) کے اپنے ورثاء کی تعداد درج کریں:</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            <div>
+              <label for="m2Spouse" class="block text-xs text-slate-700 mb-1">زوجہ / شوہر</label>
+              <input type="number" id="m2Spouse" value="0" min="0" max="4" oninput="calculateMunasakha()" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-mono-num bg-white" />
+            </div>
+            <div>
+              <label for="m2Sons" class="block text-xs text-slate-700 mb-1">بیٹے (Sons)</label>
+              <input type="number" id="m2Sons" value="0" min="0" oninput="calculateMunasakha()" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-mono-num bg-white" />
+            </div>
+            <div>
+              <label for="m2Daughters" class="block text-xs text-slate-700 mb-1">بیٹیاں (Daughters)</label>
+              <input type="number" id="m2Daughters" value="0" min="0" oninput="calculateMunasakha()" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-mono-num bg-white" />
+            </div>
+            <div>
+              <label for="m2Father" class="block text-xs text-slate-700 mb-1">والد (Father)</label>
+              <input type="number" id="m2Father" value="0" min="0" max="1" oninput="calculateMunasakha()" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-mono-num bg-white" />
+            </div>
+            <div>
+              <label for="m2Mother" class="block text-xs text-slate-700 mb-1">والدہ (Mother)</label>
+              <input type="number" id="m2Mother" value="0" min="0" max="1" oninput="calculateMunasakha()" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-mono-num bg-white" />
+            </div>
+            <div>
+              <label for="m2Brothers" class="block text-xs text-slate-700 mb-1">حقیقی بھائی</label>
+              <input type="number" id="m2Brothers" value="0" min="0" oninput="calculateMunasakha()" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-mono-num bg-white" />
+            </div>
+          </div>
+        </div>
+
+        <div id="munasakhaOutputContainer" class="overflow-x-auto rounded-xl border border-slate-200"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: SHARIAH RULES & GUIDES ==================== -->
+    
+  </main>
+
+<!-- Footer -->
+  <footer class="bg-emerald-950 text-emerald-200 py-5 px-4 text-xs border-t border-emerald-800 no-print mt-8">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-right">
+      <div>
+        <strong class="text-white">المیراث و الزکوٰۃ پرو (Advanced Hanafi Fara'id & Zakat Engine)</strong> : 
+        <span>یہ کیلکولیٹر علمی و عمومی رہنمائی کے لیے ہے؛ پیچیدہ نزاعی معاملات میں مستند دارالافتاء سے تصدیق کروا لیں۔</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="mirath.html" class="hover:text-amber-300 underline">میراث</a>
+        <a href="zakat.html" class="hover:text-amber-300 underline">زکوٰۃ</a>
+        <a href="ushr.html" class="hover:text-amber-300 underline">عشر</a>
+        <a href="munasakha.html" class="hover:text-amber-300 underline">مناسخہ</a>
+        <a href="guides.html" class="hover:text-amber-300 underline">شرعی اصول</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ==================== GLOBAL STATE & DEFINITIONS ====================
+    let currentLang = 'ur';
+    let deceasedGender = 'male';
+    let mirathChartInstance = null;
+    let mirathChartDark = null;
+    let customAssets = [];
+
+    const I18N = {
+      ur: {
+        dir: 'rtl',
+        topTagline: 'فقہِ حنفی کے مستند اصولوں پر مبنی جدید خودکار اسلامی کیلکولیٹر',
+        langLabel: 'زبان:',
+        heroTitle: 'اسلامی میراث، زکوٰۃ، عشر اور مناسخہ کیلکولیٹر (ایڈوانسڈ پرو)',
+        heroSub: 'اصحابِ فرائض، عصبات، ذوی الارحام، عول، رد، حجب (شرعی دلائل سمیت)، حمل کی وراثت، مناسخہ اور ملٹی یونٹ پراپرٹی و زکوٰۃ کا مکمل خودکار نظام',
+        tabMirath: 'میراث کیلکولیٹر (Inheritance)',
+        tabZakat: 'زکوٰۃ و عشر کیلکولیٹر (Zakat & Ushr)',
+        tabMunasakha: 'مناسخہ (Multi-Stage Death)',
+        tabGuides: 'شرعی اصول و رہنمائی',
+        tabHome: 'ہوم', tabUshr: 'عشر کیلکولیٹر',
+        smartTitle: 'اسمارٹ کیس انپٹ (Smart AI Case Parser) اور مثالیں',
+        smartDesc: 'اپنا مسئلہ اردو، رومن اردو یا انگلش میں لکھیں (مثلاً: "میت مرد، 1 بیوہ، 2 بیٹے، 3 بیٹیاں، والدہ زندہ، کل مال 1 کروڑ، قرض 5 لاکھ، 10 مرلہ زمین") یا نیچے دی گئی مثالوں میں سے منتخب کریں:',
+        btnSmartParse: 'خودکار فارم فل کریں',
+        step1Title: 'ترکہ، شرعی منہائی (کفن دفن، قرض، وصیت) اور زمین',
+        step2Title: 'ورثاء کا انتخاب (زندہ مسلمان رشتہ داروں کی تعداد)',
+        resultsHeading: 'تقسیمِ ترکہ کا شرعی نتیجہ اور تفصیل',
+        acreLabel: 'ایکڑ (Acres - 8 کنال)',
+        assetListTitle: 'الگ الگ اثاثہ جات کی فہرست (جائیداد، سونا، گاڑی، بینک اکاؤنٹ: اختیاری)',
+        btnCopySummary: 'واٹس ایپ خلاصہ کاپی کریں',
+        btnPrintPdf: 'پرنٹ / PDF محفوظ کریں',
+        btnSendMunasakha: 'مناسخہ (Stage 2) میں بھیجیں',
+        chartTitle: 'حصص کا گرافیکل چارٹ (Visual Distribution)',
+        currencyLabel: 'کرنسی:',
+        debtHint: 'بندوں کا قرض اور بیوی کا غیر ادا شدہ مہر',
+        debtLabel: '۲. قرضہ جات اور واجب الادا حق مہر (منہا)',
+        deceasedGenderLabel: 'میت کون تھا؟ (Deceased Gender)',
+        femaleLabel: 'عورت (Female)',
+        fiqhProofTitle: 'شرعی دلائل اور حجب (وجہِ محرومی) کی تفصیل',
+        funeralHint: 'کفن دفن کے ضروری اخراجات (جو ترکہ سے ادا ہوئے)',
+        funeralLabel: '۱. تجہیز و تکفین کا خرچہ (منہا)',
+        grossEstateHint: 'نقدی، بینک، سونا، مکان، دکان سب کی کل مالیت',
+        grossEstateLabel: 'کل ترکہ / مجموعی مالیت (Gross Estate)',
+        hamlSub: 'اگر میت کی بیوہ حاملہ ہو تو لڑکا اور لڑکی دونوں کے امکان کا تقابلی حساب اور موقوف حصہ دکھائیں',
+        hamlTitle: 'حمل کی وراثت (Unborn Child / Pregnancy Mode)',
+        kanalLabel: 'کنال (Kanal - 20 مرلہ)',
+        landSectionTitle: 'کل زمین و پلاٹ کا رقبہ: ملٹی یونٹ کنورٹر (اختیاری)',
+        maleLabel: 'مرد (Male)',
+        marlaLabel: 'مرلہ (Marla)',
+        marlaStandardLabel: 'مرلہ اسٹینڈرڈ:',
+        netEstateFormulaLabel: 'قابلِ تقسیم خالص ترکہ (Net Distributable Estate):',
+        newFeatureBadge: 'Advanced Feature',
+        presetLabel: 'مثالی کیسز (Examples):',
+        sqftLabel: 'اضافی مربع فٹ (Extra Sq.Ft)',
+        step2Sub: 'جو رشتہ دار میت کی وفات کے وقت حیات تھے ان کی تعداد منتخب کریں: کیلکولیٹر خودکار طور پر اصحاب الفرائض، عصبات اور محجوبین کا فیصلہ کرے گا',
+        wasiyyahConsentLabel: '1/3 سے زائد پر تمام عاقل بالغ ورثاء راضی ہیں',
+        wasiyyahLabel: '۳. جائز وصیت (زیادہ سے زیادہ 1/3)'
+      },
+      ro: {
+        dir: 'ltr',
+        topTagline: 'Fiqh-e-Hanafi ke usoolon par mabni Advanced Islamic Inheritance & Zakat Calculator',
+        langLabel: 'Language:',
+        heroTitle: 'Advanced Wirasat, Zakat, Ushr & Munasakha Calculator Pro',
+        heroSub: 'Ashab-ul-Faraiz, Asabat, Zawil-Arham, Awl, Radd, Hajb (Shariah reasons ke sath), Haml aur Multi-Unit Property & Zakat System',
+        tabMirath: 'Wirasat Calculator',
+        tabZakat: 'Zakat & Ushr Calculator',
+        tabMunasakha: 'Munasakha (Stage 2)',
+        tabGuides: 'Shariah Usool aur Guidance',
+        tabHome: 'Home', tabUshr: 'Ushr Calculator',
+        smartTitle: 'Smart AI Case Input & Misali Cases (Examples)',
+        smartDesc: 'Apna masla Roman Urdu ya English mein likhein (e.g. "1 bewa, 2 bete, 3 betiyan, walida, 10000000 cash, 10 marla"):',
+        btnSmartParse: 'Auto-Fill Form',
+        step1Title: 'Tarka (Gross Estate), Funeral, Debts, Wasiyyah & Land Area',
+        step2Title: 'Select Living Muslim Heirs (Warisoon ki Tadaad)',
+        resultsHeading: 'Taqseem-e-Wirasat Result & Shariah Breakdown',
+        acreLabel: 'Aikar (Acres - 8 Kanal)',
+        assetListTitle: 'Alag alag asasa jaat ki fehrist (jaidad, sona, gaari, bank account, ikhtiyari)',
+        btnCopySummary: 'WhatsApp khulasa copy karein',
+        btnPrintPdf: 'Print / PDF save karein',
+        btnSendMunasakha: 'Munasakha (Stage 2) mein bhejein',
+        chartTitle: 'Hisas ka graphical chart (Visual Distribution)',
+        currencyLabel: 'Currency:',
+        debtHint: 'Bandan ka qarz aur biwi ka ghair ada shuda mehr',
+        debtLabel: '2. Qarzajaat aur wajib ul ada haq mehr (minus)',
+        deceasedGenderLabel: 'Mayyat kaun tha? (Deceased Gender)',
+        femaleLabel: 'Aurat (Female)',
+        fiqhProofTitle: 'Shariah dalail aur Hajb (mehroomi ki wajah) ki tafseel',
+        funeralHint: 'Kafan dafan ke zaroori akhrajat (jo tarke se ada huay)',
+        funeralLabel: '1. Tajheez o takfeen ka kharcha (minus)',
+        grossEstateHint: 'Naqdi, bank, sona, makaan, dukaan sab ki kul maliyat',
+        grossEstateLabel: 'Kul tarka / majmoi maliyat (Gross Estate)',
+        hamlSub: 'Agar mayyat ki bewa hamla ho to larka aur larki dono ke imkaan ka taqabuli hisaab aur mauqoof hissa dikhayen',
+        hamlTitle: 'Hamal ki wirasat (Unborn Child / Pregnancy Mode)',
+        kanalLabel: 'Kanal (Kanal - 20 Marla)',
+        landSectionTitle: 'Kul zameen o plot ka raqba, Multi Unit Converter (ikhtiyari)',
+        maleLabel: 'Mard (Male)',
+        marlaLabel: 'Marla (Marla)',
+        marlaStandardLabel: 'Marla Standard:',
+        netEstateFormulaLabel: 'Qabil e taqseem khalis tarka (Net Distributable Estate):',
+        newFeatureBadge: 'Advanced Feature',
+        presetLabel: 'Misali Cases (Examples):',
+        sqftLabel: 'Izafi murabba foot (Extra Sq.Ft)',
+        step2Sub: 'Jo rishtedaar mayyat ki wafat ke waqt zinda thay un ki tadaad muntakhib karein, calculator khud Ashab ul Faraiz, Asabat aur Mehjoobeen ka faisla kare ga',
+        wasiyyahConsentLabel: '1/3 se zyada par tamam aqil baligh warasa raazi hain',
+        wasiyyahLabel: '3. Jaiz wasiyyat (zyada se zyada 1/3)'
+      },
+      en: {
+        dir: 'ltr',
+        topTagline: 'Advanced Hanafi Islamic Inheritance (Mirath), Zakat & Ushr Engine',
+        langLabel: 'Language:',
+        heroTitle: 'Islamic Inheritance (Mirath), Zakat, Ushr & Munasakha Pro',
+        heroSub: 'Complete Hanafi Faraid engine with Ashab al-Faraid, Asabat, Dhawu al-Arham, Awl, Radd, Hajb explanations, Unborn Child (Haml), and Multi-Unit Land distribution',
+        tabMirath: 'Inheritance (Mirath)',
+        tabZakat: 'Zakat & Ushr Calculator',
+        tabMunasakha: 'Munasakha (Successive Deaths)',
+        tabGuides: 'Shariah Principles & Guides',
+        tabHome: 'Home', tabUshr: 'Ushr Calculator',
+        smartTitle: 'Smart Natural Language Case Parser & Examples',
+        smartDesc: 'Type your case in plain English or Roman Urdu (e.g., "1 wife, 2 sons, 3 daughters, mother, 10000000 cash, 10 marla") or pick an example:',
+        btnSmartParse: 'Smart Auto-Fill',
+        step1Title: 'Gross Estate, Automatic Shariah Deductions & Land Area',
+        step2Title: 'Select Living Heirs at Time of Death (29 Heir Types)',
+        resultsHeading: 'Islamic Inheritance Distribution & Fiqhi Proof',
+        acreLabel: 'Acres (1 Acre = 8 Kanal)',
+        assetListTitle: 'Itemised asset list (property, gold, vehicle, bank account, optional)',
+        btnCopySummary: 'Copy WhatsApp summary',
+        btnPrintPdf: 'Print / Save PDF',
+        btnSendMunasakha: 'Send to Munasakha (Stage 2)',
+        chartTitle: 'Visual Distribution Chart',
+        currencyLabel: 'Currency:',
+        debtHint: 'Debts owed to people and the wife’s unpaid mahr',
+        debtLabel: '2. Debts & unpaid Mahr (deducted)',
+        deceasedGenderLabel: 'Who was the deceased? (Deceased Gender)',
+        femaleLabel: 'Female',
+        fiqhProofTitle: 'Shariah proofs & Hajb (reasons for exclusion) in detail',
+        funeralHint: 'Necessary funeral and burial expenses (paid from the estate)',
+        funeralLabel: '1. Funeral & burial expenses (deducted)',
+        grossEstateHint: 'Total value of cash, bank, gold, house, shop, everything',
+        grossEstateLabel: 'Gross Estate (total value of all assets)',
+        hamlSub: 'If the widow is pregnant, show a comparative calculation for a boy and a girl and the reserved share',
+        hamlTitle: 'Inheritance of the Unborn Child (Haml / Pregnancy Mode)',
+        kanalLabel: 'Kanal (1 Kanal = 20 Marla)',
+        landSectionTitle: 'Total land & plot area, multi-unit converter (optional)',
+        maleLabel: 'Male',
+        marlaLabel: 'Marla',
+        marlaStandardLabel: 'Marla standard:',
+        netEstateFormulaLabel: 'Net Distributable Estate:',
+        newFeatureBadge: 'Advanced Feature',
+        presetLabel: 'Example cases:',
+        sqftLabel: 'Extra Sq.Ft',
+        step2Sub: 'Select the numbers of relatives who were alive at the time of death. The calculator decides the fixed-share heirs, residuaries and the excluded, automatically',
+        wasiyyahConsentLabel: 'All adult, sane heirs consent to more than 1/3',
+        wasiyyahLabel: '3. Valid bequest / wasiyyat (maximum 1/3)'
+      },
+      hi: {
+        dir: 'ltr',
+        topTagline: 'फ़िक़्ह-ए-हनफ़ी पर आधारित एडवांस्ड इस्लामी विरासत और ज़कात कैलकुलेटर',
+        langLabel: 'भाषा:',
+        heroTitle: 'इस्लामी विरासत (मीरास), ज़कात, उश्र और मुनासख़ा कैलकुलेटर प्रो',
+        heroSub: 'असहाब-उल-फ़राइज़, असबात, ज़विल-अरहाम, औल, रद्द, हज्ब और मल्टी-यूनिट प्रॉपर्टी व ज़कात का संपूर्ण सिस्टम',
+        tabMirath: 'विरासत कैलकुलेटर',
+        tabZakat: 'ज़कात और उश्र कैलकुलेटर',
+        tabMunasakha: 'मुनासख़ा (Stage 2)',
+        tabGuides: 'शरई उसूल और मार्गदर्शन',
+        tabHome: 'होम', tabUshr: 'उश्र कैलकुलेटर',
+        smartTitle: 'स्मार्ट केस इनपुट और उदाहरण',
+        smartDesc: 'अपना केस लिखें (जैसे: "1 bewa, 2 bete, 3 betiyan, 10000000 cash, 10 marla") या नीचे दिए गए उदाहरण चुनें:',
+        btnSmartParse: 'ऑटो-फ़िल करें',
+        step1Title: 'कुल संपत्ति, कफ़न-दफ़न, क़र्ज़, वसीयत और ज़मीन',
+        step2Title: 'जीवित वारिसों का चयन (29 रिश्तेदार श्रेणियाँ)',
+        resultsHeading: 'विरासत का शरई बंटवारा और दलील',
+        acreLabel: 'एकड़ (Acres - 8 कनाल)',
+        assetListTitle: 'अलग अलग संपत्तियों की सूची (जायदाद, सोना, गाड़ी, बैंक खाता, वैकल्पिक)',
+        btnCopySummary: 'WhatsApp सारांश कॉपी करें',
+        btnPrintPdf: 'प्रिंट / PDF सहेजें',
+        btnSendMunasakha: 'मुनासख़ा (Stage 2) में भेजें',
+        chartTitle: 'हिस्सों का ग्राफ़िकल चार्ट (Visual Distribution)',
+        currencyLabel: 'मुद्रा:',
+        debtHint: 'लोगों का क़र्ज़ और पत्नी का अवैतनिक महर',
+        debtLabel: '2. क़र्ज़े और देय हक़ महर (घटाएँ)',
+        deceasedGenderLabel: 'मृतक कौन था? (Deceased Gender)',
+        femaleLabel: 'महिला (Female)',
+        fiqhProofTitle: 'शरई दलीलें और हज्ब (वंचित होने के कारण) विस्तार से',
+        funeralHint: 'कफ़न दफ़न के आवश्यक ख़र्च (जो संपत्ति से दिए गए)',
+        funeralLabel: '1. कफ़न दफ़न का ख़र्च (घटाएँ)',
+        grossEstateHint: 'नक़दी, बैंक, सोना, मकान, दुकान सबकी कुल कीमत',
+        grossEstateLabel: 'कुल संपत्ति / कुल मूल्य (Gross Estate)',
+        hamlSub: 'यदि मृतक की विधवा गर्भवती हो तो लड़का और लड़की दोनों की संभावना का तुलनात्मक हिसाब और आरक्षित हिस्सा दिखाएँ',
+        hamlTitle: 'गर्भस्थ शिशु की विरासत (Unborn Child / Pregnancy Mode)',
+        kanalLabel: 'कनाल (Kanal - 20 मरला)',
+        landSectionTitle: 'कुल ज़मीन व प्लॉट का क्षेत्रफल, मल्टी यूनिट कन्वर्टर (वैकल्पिक)',
+        maleLabel: 'पुरुष (Male)',
+        marlaLabel: 'मरला (Marla)',
+        marlaStandardLabel: 'मरला स्टैंडर्ड:',
+        netEstateFormulaLabel: 'वितरण योग्य शुद्ध संपत्ति (Net Distributable Estate):',
+        newFeatureBadge: 'Advanced Feature',
+        presetLabel: 'उदाहरण केस (Examples):',
+        sqftLabel: 'अतिरिक्त वर्ग फ़ुट (Extra Sq.Ft)',
+        step2Sub: 'जो रिश्तेदार मृतक की मृत्यु के समय जीवित थे उनकी संख्या चुनें, कैलकुलेटर ख़ुद असहाब-उल-फ़राइज़, असबात और महजूबीन का निर्णय करेगा',
+        wasiyyahConsentLabel: '1/3 से अधिक पर सभी वयस्क समझदार वारिस सहमत हैं',
+        wasiyyahLabel: '3. वैध वसीयत (अधिकतम 1/3)'
+      }
+    };
+
+    // 29 Heirs Definition matching tahirmadani.com + extended metadata
+    const HEIR_CATEGORIES = [
+      {
+        id: 'spouses',
+        titleUr: 'زوجین (Spouses)',
+        titleEn: 'Spouses (Husband / Wife)',
+        titleRo: 'Zojain (Spouses)', titleHi: 'पति-पत्नी (Spouses)',
+        heirs: [
+          { id: 'wife', nameUr: 'بیوی (زوجہ)', nameRo: 'Bewa / Wife', nameEn: 'Wife (Zawjah)', nameHi: 'पत्नी (ज़ौजा)', max: 4, onlyForDeceased: 'male', defaultCount: 0 },
+          { id: 'husband', nameUr: 'شوہر (زوج)', nameRo: 'Shohar / Husband', nameEn: 'Husband (Zawj)', nameHi: 'पति (ज़ौज)', max: 1, onlyForDeceased: 'female', defaultCount: 0 }
+        ]
+      },
+      {
+        id: 'descendants',
+        titleUr: 'اولاد و اولادِ اولاد (Descendants)',
+        titleEn: 'Children & Male-Line Grandchildren',
+        titleRo: 'Aulad wa Aulad-e-Aulad (Descendants)', titleHi: 'संतान और संतान की संतान (Descendants)',
+        heirs: [
+          { id: 'son', nameUr: 'بیٹا (ابن)', nameRo: 'Beta (Son)', nameEn: 'Son (Ibn)', nameHi: 'बेटा (इब्न)', max: 20, defaultCount: 0 },
+          { id: 'daughter', nameUr: 'بیٹی (بنت)', nameRo: 'Beti (Daughter)', nameEn: 'Daughter (Bint)', nameHi: 'बेटी (बिन्त)', max: 20, defaultCount: 0 },
+          { id: 'grandson', nameUr: 'پوتا (ابن الابن)', nameRo: 'Pota (Son\'s Son)', nameEn: 'Paternal Grandson', nameHi: 'पोता', max: 20, defaultCount: 0 },
+          { id: 'granddaughter', nameUr: 'پوتی (بنت الابن)', nameRo: 'Poti (Son\'s Daughter)', nameEn: 'Paternal Granddaughter', nameHi: 'पोती', max: 20, defaultCount: 0 },
+          { id: 'great_grandson', nameUr: 'پڑپوتا (ابن ابن الابن)', nameRo: 'Parpota (Great-Grandson)', nameEn: 'Paternal Great-Grandson', nameHi: 'परपोता', max: 20, defaultCount: 0 },
+          { id: 'great_granddaughter', nameUr: 'پڑپوتی (بنت ابن الابن)', nameRo: 'Parpoti (Great-Granddaughter)', nameEn: 'Paternal Great-Granddaughter', nameHi: 'परपोती', max: 20, defaultCount: 0 }
+        ]
+      },
+      {
+        id: 'ascendants',
+        titleUr: 'اصول: والدین اور دادا/دادی/نانی (Ascendants)',
+        titleEn: 'Parents & Grandparents',
+        titleRo: 'Usool, Waldain aur Dada Dadi Nani (Ascendants)', titleHi: 'मूल, माता-पिता और दादा-दादी, नाना-नानी (Ascendants)',
+        heirs: [
+          { id: 'father', nameUr: 'والد (اب)', nameRo: 'Walid (Father)', nameEn: 'Father (Ab)', nameHi: 'पिता (अब)', max: 1, defaultCount: 0 },
+          { id: 'mother', nameUr: 'والدہ (ام)', nameRo: 'Walida (Mother)', nameEn: 'Mother (Umm)', nameHi: 'माता (उम्म)', max: 1, defaultCount: 0 },
+          { id: 'paternal_grandfather', nameUr: 'دادا (جدّ صحیح)', nameRo: 'Dada (Paternal Grandfather)', nameEn: 'Paternal Grandfather', nameHi: 'दादा', max: 1, defaultCount: 0 },
+          { id: 'paternal_great_grandfather', nameUr: 'پردادا (دادا کا باپ)', nameRo: 'Pardada (Great-Grandfather)', nameEn: 'Paternal Great-Grandfather', nameHi: 'परदादा', max: 1, defaultCount: 0 },
+          { id: 'paternal_grandmother', nameUr: 'دادی (والد کی ماں)', nameRo: 'Dadi (Paternal Grandmother)', nameEn: 'Paternal Grandmother', nameHi: 'दादी', max: 1, defaultCount: 0 },
+          { id: 'paternal_great_grandmother', nameUr: 'پردادی (دادا کی ماں)', nameRo: 'Pardadi (Paternal Great-Grandmother)', nameEn: 'Paternal Great-Grandmother', nameHi: 'परदादी', max: 1, defaultCount: 0 },
+          { id: 'maternal_grandmother', nameUr: 'نانی (والدہ کی ماں)', nameRo: 'Nani (Maternal Grandmother)', nameEn: 'Maternal Grandmother', nameHi: 'नानी', max: 1, defaultCount: 0 },
+          { id: 'maternal_great_grandmother', nameUr: 'پرنانی (نانی کی ماں)', nameRo: 'Parnani (Maternal Great-Grandmother)', nameEn: 'Maternal Great-Grandmother', nameHi: 'परनानी', max: 1, defaultCount: 0 }
+        ]
+      },
+      {
+        id: 'siblings',
+        titleUr: 'بھائی اور بہنیں (Siblings)',
+        titleEn: 'Full, Consanguine & Uterine Siblings',
+        titleRo: 'Bhai aur Behnein (Siblings)', titleHi: 'भाई और बहनें (Siblings)',
+        heirs: [
+          { id: 'real_brother', nameUr: 'حقیقی بھائی (اخ شقیق)', nameRo: 'Haqeeqi Bhai (Full Brother)', nameEn: 'Full Brother', nameHi: 'सगा भाई', max: 20, defaultCount: 0 },
+          { id: 'real_sister', nameUr: 'حقیقی بہن (اخت شقیقہ)', nameRo: 'Haqeeqi Behan (Full Sister)', nameEn: 'Full Sister', nameHi: 'सगी बहन', max: 20, defaultCount: 0 },
+          { id: 'consanguine_brother', nameUr: 'علاتی بھائی (والد شریک)', nameRo: 'Allati Bhai (Paternal Half-Brother)', nameEn: 'Paternal Half-Brother', nameHi: 'सौतेला भाई (पिता शरीक)', max: 20, defaultCount: 0 },
+          { id: 'consanguine_sister', nameUr: 'علاتی بہن (والد شریک)', nameRo: 'Allati Behan (Paternal Half-Sister)', nameEn: 'Paternal Half-Sister', nameHi: 'सौतेली बहन (पिता शरीक)', max: 20, defaultCount: 0 },
+          { id: 'uterine_sibling', nameUr: 'اخیافی بھائی/بہن (ماں شریک)', nameRo: 'Akhyafi Bhai/Behan (Maternal Sibling)', nameEn: 'Maternal Half-Sibling', nameHi: 'माँ शरीक भाई/बहन', max: 20, defaultCount: 0 }
+        ]
+      },
+      {
+        id: 'other_agnates',
+        titleUr: 'دیگر عصبات: بھتیجے، چچا، چچازاد (Other Agnates)',
+        titleEn: 'Nephews, Paternal Uncles & Male Cousins',
+        titleRo: 'Deegar Asabat, Bhatijay, Chacha, Chachazad (Other Agnates)', titleHi: 'अन्य असबात, भतीजे, चाचा, चचेरे (Other Agnates)',
+        heirs: [
+          { id: 'real_nephew', nameUr: 'بھتیجا حقیقی (ابن اخ شقیق)', nameRo: 'Bhatija Haqeeqi (Full Brother\'s Son)', nameEn: 'Full Brother\'s Son', nameHi: 'सगा भतीजा', max: 20, defaultCount: 0 },
+          { id: 'consanguine_nephew', nameUr: 'بھتیجا علاتی (ابن اخ لأب)', nameRo: 'Bhatija Allati (Half-Brother\'s Son)', nameEn: 'Paternal Half-Brother\'s Son', nameHi: 'सौतेला भतीजा (पिता शरीक)', max: 20, defaultCount: 0 },
+          { id: 'real_paternal_uncle', nameUr: 'چچا حقیقی (عم شقیق)', nameRo: 'Chacha Haqeeqi (Full Paternal Uncle)', nameEn: 'Full Paternal Uncle', nameHi: 'सगा चाचा', max: 20, defaultCount: 0 },
+          { id: 'consanguine_paternal_uncle', nameUr: 'چچا علاتی (عم لأب)', nameRo: 'Chacha Allati (Half Paternal Uncle)', nameEn: 'Paternal Half-Uncle', nameHi: 'सौतेला चाचा (पिता शरीक)', max: 20, defaultCount: 0 },
+          { id: 'real_paternal_cousin', nameUr: 'چچازاد حقیقی (ابن عم شقیق)', nameRo: 'Chachazad Haqeeqi (Full Cousin)', nameEn: 'Full Paternal Uncle\'s Son', nameHi: 'सगा चचेरा भाई', max: 20, defaultCount: 0 },
+          { id: 'consanguine_paternal_cousin', nameUr: 'چچازاد علاتی (ابن عم لأب)', nameRo: 'Chachazad Allati (Half Cousin)', nameEn: 'Paternal Half-Uncle\'s Son', nameHi: 'सौतेला चचेरा भाई (पिता शरीक)', max: 20, defaultCount: 0 }
+        ]
+      },
+      {
+        id: 'distant_kindred',
+        titleUr: 'ذوی الارحام: نواسے، نانا، بھانجے، پھوپھی، خالہ، ماموں (Distant Kindred)',
+        titleEn: 'Distant Kindred (Dhawu al-Arham - Inherits only if no Ashab al-Faraid/Asabat)',
+        titleRo: 'Zawil-Arham, Nawasay, Nana, Bhanjay, Phuphi, Khala, Mamoo (Distant Kindred)', titleHi: 'ज़विल-अरहाम, नवासे, नाना, भांजे, बुआ, ख़ाला, मामू (Distant Kindred)',
+        heirs: [
+          { id: 'daughters_son', nameUr: 'نواسا (ابن البنت)', nameRo: 'Nawasa (Daughter\'s Son)', nameEn: 'Daughter\'s Son', nameHi: 'नवासा (बेटी का बेटा)', max: 20, defaultCount: 0 },
+          { id: 'daughters_daughter', nameUr: 'نواسی (بنت البنت)', nameRo: 'Nawasi (Daughter\'s Daughter)', nameEn: 'Daughter\'s Daughter', nameHi: 'नवासी (बेटी की बेटी)', max: 20, defaultCount: 0 },
+          { id: 'maternal_grandfather', nameUr: 'نانا (اب الام)', nameRo: 'Nana (Maternal Grandfather)', nameEn: 'Maternal Grandfather', nameHi: 'नाना', max: 1, defaultCount: 0 },
+          { id: 'sisters_son', nameUr: 'بھانجا (ابن الاخت)', nameRo: 'Bhanja (Sister\'s Son)', nameEn: 'Sister\'s Son', nameHi: 'भांजा (बहन का बेटा)', max: 20, defaultCount: 0 },
+          { id: 'sisters_daughter', nameUr: 'بھانجی (بنت الاخت)', nameRo: 'Bhanji (Sister\'s Daughter)', nameEn: 'Sister\'s Daughter', nameHi: 'भांजी (बहन की बेटी)', max: 20, defaultCount: 0 },
+          { id: 'brothers_daughter', nameUr: 'بھتیجی (بنت الاخ)', nameRo: 'Bhatiji (Brother\'s Daughter)', nameEn: 'Brother\'s Daughter', nameHi: 'भतीजी (भाई की बेटी)', max: 20, defaultCount: 0 },
+          { id: 'paternal_aunt', nameUr: 'پھوپھی (عمّہ)', nameRo: 'Phuphi (Paternal Aunt)', nameEn: 'Paternal Aunt', nameHi: 'बुआ (फूफी)', max: 20, defaultCount: 0 },
+          { id: 'maternal_aunt', nameUr: 'خالہ (خالہ)', nameRo: 'Khala (Maternal Aunt)', nameEn: 'Maternal Aunt', nameHi: 'ख़ाला', max: 20, defaultCount: 0 },
+          { id: 'maternal_uncle', nameUr: 'ماموں (خال)', nameRo: 'Mamu (Maternal Uncle)', nameEn: 'Maternal Uncle', nameHi: 'मामू', max: 20, defaultCount: 0 }
+        ]
+      }
+    ];
+
+    const heirCounts = {};
+    HEIR_CATEGORIES.forEach(cat => {
+      cat.heirs.forEach(h => {
+        heirCounts[h.id] = h.defaultCount || 0;
+      });
+    });
+
+    // ==================== UTILITY HELPERS ====================
+    function showToast(msg, icon = '✅') {
+      const box = document.getElementById('toastBox');
+      const txt = document.getElementById('toastText');
+      const icn = document.getElementById('toastIcon');
+      if (!box || !txt) return;
+      txt.textContent = msg;
+      icn.textContent = icon;
+      box.classList.remove('hidden');
+      setTimeout(() => {
+        box.classList.add('hidden');
+      }, 3200);
+    }
+
+    function gcd(a, b) {
+      a = Math.abs(Math.round(a));
+      b = Math.abs(Math.round(b));
+      while (b) {
+        const t = b;
+        b = a % b;
+        a = t;
+      }
+      return a || 1;
+    }
+
+    function lcm(a, b) {
+      if (!a || !b) return 1;
+      return Math.abs((a * b) / gcd(a, b));
+    }
+
+    function formatNum(n, decimals = 0) {
+      if (!isFinite(n)) return '0';
+      return Number(n).toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
+
+    function getHeirMeta(id) {
+      for (const cat of HEIR_CATEGORIES) {
+        for (const h of cat.heirs) {
+          if (h.id === id) return h;
+        }
+      }
+      return { id, nameUr: id, nameRo: id, nameEn: id, max: 20 };
+    }
+
+    function getHeirDisplayName(id) {
+      const h = getHeirMeta(id);
+      if (currentLang === 'en') return h.nameEn;
+      if (currentLang === 'ro') return h.nameRo;
+      if (currentLang === 'hi') return h.nameHi || h.nameEn;
+      return h.nameUr;
+    }
+
+    // ==================== HEIR AVAILABILITY (Hajb) ====================
+    // Mirrors the Hajb-e-Hirman exclusions inside solveHanafiMirath():
+    // an heir the engine would exclude (mahjoob) is shown non-clickable in
+    // the grid, with the reason, and its count stays 0 until the blocking
+    // heir is removed. When nothing blocks it, the option is clickable.
+    function getHeirBlockInfo(src) {
+      const n = id => (src && src[id]) || 0;
+      const blocked = {};
+      // w[] replays the engine's sequential zeroing: once an heir is excluded,
+      // it no longer blocks anyone else (same order as solveHanafiMirath).
+      const w = {};
+      Object.keys(heirCounts).forEach(k => { w[k] = n(k); });
+      const block = (id, ur, en) => { blocked[id] = { ur, en }; w[id] = 0; };
+
+      const son = n('son'), daughter = n('daughter'), grandson = n('grandson'),
+        granddaughter = n('granddaughter'), greatGrandson = n('great_grandson'),
+        greatGranddaughter = n('great_granddaughter'),
+        father = n('father'), mother = n('mother'),
+        pgf = n('paternal_grandfather'), pggf = n('paternal_great_grandfather'),
+        pgm = n('paternal_grandmother'), pggm = n('paternal_great_grandmother'),
+        mgm = n('maternal_grandmother'), mggm = n('maternal_great_grandmother');
+
+      const hasDescendant = (son + daughter + grandson + granddaughter + greatGrandson + greatGranddaughter) > 0;
+      const hasMaleDescendant = (son + grandson + greatGrandson) > 0;
+      const hasMaleAscendant = (father + pgf + pggf) > 0;
+      const maleLineBlock = hasMaleDescendant || hasMaleAscendant;
+      const femaleDescendantPresent = (daughter + granddaughter + greatGranddaughter) > 0;
+
+      // Ascendants (later checks read w[], the post-exclusion counts, like the engine)
+      if (w.paternal_grandfather > 0 && father > 0) block('paternal_grandfather', 'والد کی موجودگی میں محجوب', 'Blocked by the Father');
+      if (w.paternal_great_grandfather > 0 && (father > 0 || w.paternal_grandfather > 0)) block('paternal_great_grandfather', 'والد یا دادا کی موجودگی میں محجوب', 'Blocked by the Father or Grandfather');
+      if (w.paternal_grandmother > 0 && (mother > 0 || father > 0)) block('paternal_grandmother', 'والدہ یا والد کی موجودگی میں محجوب', 'Blocked by the Mother or the Father');
+      if (w.maternal_grandmother > 0 && mother > 0) block('maternal_grandmother', 'والدہ کی موجودگی میں محجوب', 'Blocked by the Mother');
+      if (w.paternal_great_grandmother > 0 && (mother > 0 || father > 0 || w.paternal_grandfather > 0 || w.paternal_grandmother > 0 || w.maternal_grandmother > 0)) block('paternal_great_grandmother', 'قریبی اصول کی موجودگی میں محجوب', 'Blocked by a nearer ascendant');
+      if (w.maternal_great_grandmother > 0 && (mother > 0 || w.paternal_grandmother > 0 || w.maternal_grandmother > 0)) block('maternal_great_grandmother', 'والدہ یا قریبی دادی/نانی کی موجودگی میں محجوب', 'Blocked by the Mother or a nearer grandmother');
+
+      // Descendants
+      if (w.grandson > 0 && son > 0) block('grandson', 'بیٹے کی موجودگی میں محجوب', 'Blocked by the Son');
+      if (w.granddaughter > 0 && son > 0) block('granddaughter', 'بیٹے کی موجودگی میں محجوب', 'Blocked by the Son');
+      else if (w.granddaughter > 0 && daughter >= 2 && w.grandson === 0 && greatGrandson === 0) block('granddaughter', 'دو بیٹیوں کو دو تہائی (2/3) مل جانے سے محجوب', 'Blocked: two Daughters complete the 2/3 share');
+      if (w.great_grandson > 0 && (son > 0 || w.grandson > 0)) block('great_grandson', 'بیٹے یا پوتے کی موجودگی میں محجوب', 'Blocked by the Son or Grandson');
+      if (w.great_granddaughter > 0 && (son > 0 || w.grandson > 0)) block('great_granddaughter', 'بیٹے یا پوتے کی موجودگی میں محجوب', 'Blocked by the Son or Grandson');
+      else if (w.great_granddaughter > 0 && (daughter + w.granddaughter) >= 2 && w.great_grandson === 0) block('great_granddaughter', 'دو تہائی فرض مکمل ہونے سے محجوب', 'Blocked: the 2/3 share is already complete');
+
+      // Siblings
+      if (n('uterine_sibling') > 0 && (hasDescendant || hasMaleAscendant)) block('uterine_sibling', 'اولاد یا والد/دادا کی موجودگی میں محجوب', 'Blocked by descendants or the Father/Grandfather');
+      if (n('real_brother') > 0 && maleLineBlock) block('real_brother', 'بیٹے/پوتے یا والد/دادا کی موجودگی میں محجوب', 'Blocked by a male descendant or the Father/Grandfather');
+      if (n('real_sister') > 0 && maleLineBlock) block('real_sister', 'بیٹے/پوتے یا والد/دادا کی موجودگی میں محجوب', 'Blocked by a male descendant or the Father/Grandfather');
+      const realSisterAsabah = (n('real_sister') > 0 && n('real_brother') === 0 && femaleDescendantPresent && !maleLineBlock);
+      if (n('consanguine_brother') > 0 && (maleLineBlock || n('real_brother') > 0 || realSisterAsabah)) block('consanguine_brother', 'اوپر کے درجے کے وارث کی موجودگی میں محجوب', 'Blocked by a higher-ranking heir');
+      if (n('consanguine_sister') > 0 && (maleLineBlock || n('real_brother') > 0 || realSisterAsabah)) block('consanguine_sister', 'اوپر کے درجے کے وارث کی موجودگی میں محجوب', 'Blocked by a higher-ranking heir');
+      else if (n('consanguine_sister') > 0 && n('real_sister') >= 2 && w.consanguine_brother === 0) block('consanguine_sister', 'دو حقیقی بہنوں کو دو تہائی (2/3) مل جانے سے محجوب', 'Blocked: two Full Sisters complete the 2/3 share');
+      const consanguineSisterAsabah = (n('consanguine_sister') > 0 && n('consanguine_brother') === 0 && femaleDescendantPresent && !maleLineBlock && n('real_sister') === 0);
+
+      // Other agnates: only the nearest available rank stays clickable
+      const higherAgnate = maleLineBlock || n('real_brother') > 0 || n('consanguine_brother') > 0 || realSisterAsabah || consanguineSisterAsabah;
+      const chain = ['real_nephew', 'consanguine_nephew', 'real_paternal_uncle', 'consanguine_paternal_uncle', 'real_paternal_cousin', 'consanguine_paternal_cousin'];
+      let winnerFound = higherAgnate;
+      chain.forEach(id => {
+        if (n(id) > 0) {
+          if (winnerFound) block(id, 'قریبی عصبہ کی موجودگی میں محجوب', 'Blocked by a nearer Asabah heir');
+          else winnerFound = true;
+        }
+      });
+
+      // Dhawu al-Arham: clickable only when no fixed-share (non-spouse) or Asabah heir is active
+      const arhamIds = ['daughters_son', 'daughters_daughter', 'maternal_grandfather', 'sisters_son', 'sisters_daughter', 'brothers_daughter', 'paternal_aunt', 'maternal_aunt', 'maternal_uncle'];
+      const activeRealHeir = Object.keys(heirCounts).some(id => {
+        if (arhamIds.indexOf(id) !== -1 || id === 'wife' || id === 'husband') return false;
+        return n(id) > 0 && !blocked[id];
+      });
+      if (activeRealHeir) {
+        arhamIds.forEach(id => {
+          if (n(id) > 0) block(id, 'اصحاب الفرائض یا عصبات کی موجودگی میں محجوب', 'Blocked while a fixed-share or Asabah heir exists');
+        });
+      }
+
+      return blocked;
+    }
+
+    // An heir counts as blocked whenever it could never receive a share if selected now:
+    // evaluate the hajb rules as if this heir were present (its count forced to at least 1).
+    // This makes blocked options appear non-clickable from the first render, not only after a click.
+    function getHeirForcedBlock(id) {
+      const test = Object.assign({}, heirCounts);
+      test[id] = Math.max(1, test[id] || 0);
+      return getHeirBlockInfo(test)[id] || null;
+    }
+
+    // ==================== UI RENDERING & TABS ====================
+    function renderHeirsGrid() {
+      const container = document.getElementById('heirsGridContainer');
+      if (!container) return;
+      let html = '';
+
+      HEIR_CATEGORIES.forEach(cat => {
+        const catTitle = currentLang === 'en' ? cat.titleEn : (currentLang === 'ro' ? (cat.titleRo || cat.titleEn) : (currentLang === 'hi' ? (cat.titleHi || cat.titleEn) : cat.titleUr));
+        html += `<div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200">
+          <h3 class="text-xs sm:text-sm font-bold text-emerald-950 mb-3 pb-1.5 border-b border-slate-200">${catTitle}</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">`;
+
+        cat.heirs.forEach(h => {
+          const genderBlock = (h.onlyForDeceased && h.onlyForDeceased !== deceasedGender);
+          const hajb = genderBlock ? null : getHeirForcedBlock(h.id);
+          const isBlocked = !!(genderBlock || hajb);
+          if (isBlocked && (heirCounts[h.id] || 0) > 0) heirCounts[h.id] = 0;
+          const count = isBlocked ? 0 : (heirCounts[h.id] || 0);
+          const label = getHeirDisplayName(h.id);
+          const activeClass = count > 0
+            ? 'bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500/40'
+            : 'bg-white border-slate-200';
+          const opacityClass = isBlocked ? 'opacity-40 pointer-events-none' : '';
+          let blockReason = '';
+          if (genderBlock) {
+            blockReason = currentLang === 'en'
+              ? (h.id === 'wife' ? 'Selectable only for a male deceased' : 'Selectable only for a female deceased')
+              : (h.id === 'wife' ? 'صرف مرد میت کے لیے قابلِ انتخاب' : 'صرف خاتون میت کے لیے قابلِ انتخاب');
+          } else if (hajb) {
+            blockReason = currentLang === 'en' ? hajb.en : hajb.ur;
+          }
+
+          html += `
+            <div class="flex items-center justify-between p-2.5 rounded-xl border transition ${activeClass} ${opacityClass}">
+              <div class="pe-1">
+                <span class="text-xs sm:text-sm font-bold text-slate-800 block">${label}</span>
+                ${h.max < 20 ? `<span class="text-[10px] text-slate-500">Max: ${h.max}</span>` : ''}
+                ${blockReason ? `<span class="block text-[10px] leading-snug text-red-600 font-semibold mt-0.5">${blockReason}</span>` : ''}
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0" dir="ltr">
+                <button type="button" ${isBlocked ? 'disabled' : ''} onclick="changeHeirCount('${h.id}', -1)" class="w-7 h-7 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-sm flex items-center justify-center transition">−</button>
+                <span id="heirCount-${h.id}" class="w-7 text-center font-bold font-mono-num text-sm ${count > 0 ? 'text-emerald-800' : 'text-slate-500'}">${count}</span>
+                <button type="button" ${isBlocked ? 'disabled' : ''} onclick="changeHeirCount('${h.id}', 1)" class="w-7 h-7 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm flex items-center justify-center transition">+</button>
+              </div>
+            </div>`;
+        });
+
+        html += `</div></div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function changeHeirCount(id, delta) {
+      const meta = getHeirMeta(id);
+      if (meta.onlyForDeceased && meta.onlyForDeceased !== deceasedGender) return;
+      if (getHeirForcedBlock(id)) return;
+      const next = Math.max(0, Math.min(meta.max || 20, (heirCounts[id] || 0) + delta));
+      heirCounts[id] = next;
+      renderHeirsGrid();
+      calculateMirath();
+    }
+
+    function setDeceasedGender(gender) {
+      deceasedGender = gender;
+      if (gender === 'male') {
+        heirCounts.husband = 0;
+      } else {
+        heirCounts.wife = 0;
+      }
+      const mBtn = document.getElementById('genderBtn-male');
+      const fBtn = document.getElementById('genderBtn-female');
+      if (gender === 'male') {
+        mBtn.className = 'py-2.5 px-4 rounded-xl font-bold text-sm bg-emerald-700 text-white shadow transition flex items-center justify-center gap-2 is-active';
+        fBtn.className = 'py-2.5 px-4 rounded-xl font-semibold text-sm bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 transition flex items-center justify-center gap-2';
+      } else {
+        fBtn.className = 'py-2.5 px-4 rounded-xl font-bold text-sm bg-emerald-700 text-white shadow transition flex items-center justify-center gap-2 is-active';
+        mBtn.className = 'py-2.5 px-4 rounded-xl font-semibold text-sm bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 transition flex items-center justify-center gap-2';
+      }
+      mBtn.setAttribute('aria-pressed', gender === 'male' ? 'true' : 'false');
+      fBtn.setAttribute('aria-pressed', gender === 'female' ? 'true' : 'false');
+      renderHeirsGrid();
+      calculateMirath();
+    }
+
+    function resetMirathHeirs() {
+      Object.keys(heirCounts).forEach(k => { heirCounts[k] = 0; });
+      renderHeirsGrid();
+      calculateMirath();
+      showToast('تمام ورثاء کی تعداد صفر کر دی گئی ہے', '🔄');
+    }
+
+    // ==================== CORE HANAFI MIRATH ENGINE ====================
+    function solveHanafiMirath(countsInput) {
+      const c = Object.assign({}, countsInput);
+      const activeHeirs = [];
+      const excludedHeirs = [];
+      const notes = [];
+
+      const hasDescendant = (c.son + c.daughter + c.grandson + c.granddaughter + c.great_grandson + c.great_granddaughter) > 0;
+      const hasMaleDescendant = (c.son + c.grandson + c.great_grandson) > 0;
+      const hasMaleAscendant = (c.father + c.paternal_grandfather + c.paternal_great_grandfather) > 0;
+      const totalSiblings = c.real_brother + c.real_sister + c.consanguine_brother + c.consanguine_sister + c.uterine_sibling;
+
+      // 1. Check Exclusions (Hajb Hirman) first and record Fiqhi reasons
+      if (c.paternal_grandfather > 0 && c.father > 0) {
+        excludedHeirs.push({ id: 'paternal_grandfather', count: c.paternal_grandfather, reason: 'والد کی موجودگی میں دادا محجوب (محروم) ہو جاتا ہے۔' });
+        c.paternal_grandfather = 0;
+      }
+      if (c.paternal_great_grandfather > 0 && (c.father > 0 || c.paternal_grandfather > 0)) {
+        excludedHeirs.push({ id: 'paternal_great_grandfather', count: c.paternal_great_grandfather, reason: 'والد یا دادا کی موجودگی میں پردادا محجوب ہو جاتا ہے۔' });
+        c.paternal_great_grandfather = 0;
+      }
+
+      // Grandmothers exclusion
+      if (c.paternal_grandmother > 0 && (c.mother > 0 || c.father > 0)) {
+        excludedHeirs.push({ id: 'paternal_grandmother', count: c.paternal_grandmother, reason: 'والدہ یا والد کی موجودگی میں دادی محجوب ہو جاتی ہے۔' });
+        c.paternal_grandmother = 0;
+      }
+      if (c.maternal_grandmother > 0 && c.mother > 0) {
+        excludedHeirs.push({ id: 'maternal_grandmother', count: c.maternal_grandmother, reason: 'والدہ کی موجودگی میں نانی محجوب ہو جاتی ہے۔' });
+        c.maternal_grandmother = 0;
+      }
+      if (c.paternal_great_grandmother > 0 && (c.mother > 0 || c.father > 0 || c.paternal_grandfather > 0 || c.paternal_grandmother > 0 || c.maternal_grandmother > 0)) {
+        excludedHeirs.push({ id: 'paternal_great_grandmother', count: c.paternal_great_grandmother, reason: 'قریبی درجہ کی ماں/دادی/نانی یا والد/دادا کی وجہ سے پردادی محجوب ہے۔' });
+        c.paternal_great_grandmother = 0;
+      }
+      if (c.maternal_great_grandmother > 0 && (c.mother > 0 || c.paternal_grandmother > 0 || c.maternal_grandmother > 0)) {
+        excludedHeirs.push({ id: 'maternal_great_grandmother', count: c.maternal_great_grandmother, reason: 'والدہ یا قریبی دادی/نانی کی موجودگی میں پرنانی محجوب ہے۔' });
+        c.maternal_great_grandmother = 0;
+      }
+
+      // Descendants exclusions
+      if (c.grandson > 0 && c.son > 0) {
+        excludedHeirs.push({ id: 'grandson', count: c.grandson, reason: 'حقیقی بیٹے (ابن) کی موجودگی میں پوتا بالاجماع محجوب ہو جاتا ہے۔' });
+        c.grandson = 0;
+      }
+      if (c.granddaughter > 0 && c.son > 0) {
+        excludedHeirs.push({ id: 'granddaughter', count: c.granddaughter, reason: 'حقیقی بیٹے کی موجودگی میں پوتی محجوب ہو جاتی ہے۔' });
+        c.granddaughter = 0;
+      } else if (c.granddaughter > 0 && c.daughter >= 2 && c.grandson === 0 && c.great_grandson === 0) {
+        excludedHeirs.push({ id: 'granddaughter', count: c.granddaughter, reason: 'دو یا زائد بیٹیوں کو دو تہائی (2/3) مل جانے اور کسی عصبہ بنانے والے پوتے کے نہ ہونے کی وجہ سے پوتی محجوب ہے۔' });
+        c.granddaughter = 0;
+      }
+
+      if (c.great_grandson > 0 && (c.son > 0 || c.grandson > 0)) {
+        excludedHeirs.push({ id: 'great_grandson', count: c.great_grandson, reason: 'بیٹے یا پوتے کی موجودگی میں پڑپوتا محجوب ہے۔' });
+        c.great_grandson = 0;
+      }
+      if (c.great_granddaughter > 0 && (c.son > 0 || c.grandson > 0)) {
+        excludedHeirs.push({ id: 'great_granddaughter', count: c.great_granddaughter, reason: 'بیٹے یا پوتے کی موجودگی میں پڑپوتی محجوب ہے۔' });
+        c.great_granddaughter = 0;
+      } else if (c.great_granddaughter > 0 && (c.daughter + c.granddaughter >= 2) && c.great_grandson === 0) {
+        excludedHeirs.push({ id: 'great_granddaughter', count: c.great_granddaughter, reason: 'دو تہائی فرض مکمل ہونے اور پڑپوتا نہ ہونے کے سبب پڑپوتی محجوب ہے۔' });
+        c.great_granddaughter = 0;
+      }
+
+      // Siblings exclusions (In Hanafi Fiqh, Father AND Paternal Grandfather both exclude all siblings)
+      const maleLineBlockForSiblings = hasMaleDescendant || hasMaleAscendant;
+      if (c.uterine_sibling > 0 && (hasDescendant || hasMaleAscendant)) {
+        excludedHeirs.push({ id: 'uterine_sibling', count: c.uterine_sibling, reason: 'اولاد (بیٹا/بیٹی/پوتا/پوتی) یا اصولِ مذکر (والد/دادا) کی موجودگی میں اخیافی بھائی/بہن محجوب ہوتے ہیں۔' });
+        c.uterine_sibling = 0;
+      }
+      if (c.real_brother > 0 && maleLineBlockForSiblings) {
+        excludedHeirs.push({ id: 'real_brother', count: c.real_brother, reason: 'فقہِ حنفی میں بیٹے/پوتے یا والد/دادا کی موجودگی میں حقیقی بھائی محجوب ہو جاتا ہے۔' });
+        c.real_brother = 0;
+      }
+      if (c.real_sister > 0 && maleLineBlockForSiblings) {
+        excludedHeirs.push({ id: 'real_sister', count: c.real_sister, reason: 'بیٹے/پوتے یا والد/دادا کی موجودگی میں حقیقی بہن محجوب ہو جاتی ہے۔' });
+        c.real_sister = 0;
+      }
+
+      // Real sister as Asabah ma'al Ghair (with daughter/granddaughter)
+      const femaleDescendantPresent = (c.daughter + c.granddaughter + c.great_granddaughter) > 0;
+      const realSisterIsAsabahMaalGhair = (c.real_sister > 0 && c.real_brother === 0 && femaleDescendantPresent && !maleLineBlockForSiblings);
+
+      if (c.consanguine_brother > 0 && (maleLineBlockForSiblings || c.real_brother > 0 || realSisterIsAsabahMaalGhair)) {
+        excludedHeirs.push({ id: 'consanguine_brother', count: c.consanguine_brother, reason: 'بیٹے/والد/حقیقی بھائی یا عصبہ مع الغیر حقیقی بہن کی موجودگی میں علاتی بھائی محجوب ہے۔' });
+        c.consanguine_brother = 0;
+      }
+      if (c.consanguine_sister > 0 && (maleLineBlockForSiblings || c.real_brother > 0 || realSisterIsAsabahMaalGhair)) {
+        excludedHeirs.push({ id: 'consanguine_sister', count: c.consanguine_sister, reason: 'بیٹے/والد/حقیقی بھائی یا عصبہ مع الغیر حقیقی بہن کی موجودگی میں علاتی بہن محجوب ہے۔' });
+        c.consanguine_sister = 0;
+      } else if (c.consanguine_sister > 0 && c.real_sister >= 2 && c.consanguine_brother === 0) {
+        excludedHeirs.push({ id: 'consanguine_sister', count: c.consanguine_sister, reason: 'دو یا زائد حقیقی بہنوں کو 2/3 مل جانے اور علاتی بھائی نہ ہونے سے علاتی بہن محجوب ہے۔' });
+        c.consanguine_sister = 0;
+      }
+
+      const consanguineSisterIsAsabahMaalGhair = (c.consanguine_sister > 0 && c.consanguine_brother === 0 && femaleDescendantPresent && !maleLineBlockForSiblings && c.real_sister === 0);
+
+      // Other Agnates order of priority
+      const higherAgnatePresent = maleLineBlockForSiblings || c.real_brother > 0 || c.consanguine_brother > 0 || realSisterIsAsabahMaalGhair || consanguineSisterIsAsabahMaalGhair;
+      const agnateChain = [
+        { id: 'real_nephew', label: 'حقیقی بھتیجا' },
+        { id: 'consanguine_nephew', label: 'علاتی بھتیجا' },
+        { id: 'real_paternal_uncle', label: 'حقیقی چچا' },
+        { id: 'consanguine_paternal_uncle', label: 'علاتی چچا' },
+        { id: 'real_paternal_cousin', label: 'حقیقی چچازاد' },
+        { id: 'consanguine_paternal_cousin', label: 'علاتی چچازاد' }
+      ];
+      let agnateWinnerFound = higherAgnatePresent;
+      agnateChain.forEach(ag => {
+        if (c[ag.id] > 0) {
+          if (agnateWinnerFound) {
+            excludedHeirs.push({ id: ag.id, count: c[ag.id], reason: 'قریبی درجہ کے عصبہ رشتہ دار کی موجودگی میں ' + ag.label + ' محجوب ہے۔' });
+            c[ag.id] = 0;
+          } else {
+            agnateWinnerFound = true;
+          }
+        }
+      });
+
+      // Fixed Shares (Ashab al-Fara'id) as [num, den]
+      const fixedShares = [];
+      // Spouse
+      if (c.husband > 0) {
+        if (hasDescendant) {
+          fixedShares.push({ id: 'husband', count: 1, num: 1, den: 4, label: '1/4', type: 'ذو فرض (Ashab al-Faraid)', reason: 'اولاد کی موجودگی میں شوہر کا فرض حصہ چوتھائی (1/4) ہے۔ (سورۃ النساء: 12)' });
+        } else {
+          fixedShares.push({ id: 'husband', count: 1, num: 1, den: 2, label: '1/2', type: 'ذو فرض (Ashab al-Faraid)', reason: 'اولاد نہ ہونے کی صورت میں شوہر کا فرض حصہ نصف (1/2) ہے۔ (سورۃ النساء: 12)' });
+        }
+      }
+      if (c.wife > 0) {
+        if (hasDescendant) {
+          fixedShares.push({ id: 'wife', count: c.wife, num: 1, den: 8, label: '1/8', type: 'ذو فرض (Ashab al-Faraid)', reason: 'اولاد کی موجودگی میں بیوہ (ایک یا زائد) کا مشترکہ حصہ آٹھواں (1/8) ہے۔' });
+        } else {
+          fixedShares.push({ id: 'wife', count: c.wife, num: 1, den: 4, label: '1/4', type: 'ذو فرض (Ashab al-Faraid)', reason: 'اولاد نہ ہونے کی صورت میں بیوہ کا فرض حصہ چوتھائی (1/4) ہے۔' });
+        }
+      }
+
+      // Father / Grandfather
+      if (c.father > 0) {
+        if (hasMaleDescendant) {
+          fixedShares.push({ id: 'father', count: 1, num: 1, den: 6, label: '1/6', type: 'ذو فرض (1/6)', reason: 'بیٹے یا پوتے کی موجودگی میں والد کو صرف چھٹا حصہ (1/6) ملتا ہے۔' });
+        } else if (femaleDescendantPresent) {
+          fixedShares.push({ id: 'father', count: 1, num: 1, den: 6, label: '1/6 + بقیہ عصبہ', type: 'ذو فرض + عصبہ', reason: 'صرف بیٹی/پوتی کی موجودگی میں والد کو 1/6 بطور فرض اور باقی بچنے والا مال بطور عصبہ ملتا ہے۔', alsoAsabah: true });
+        }
+      } else if (c.paternal_grandfather > 0) {
+        if (hasMaleDescendant) {
+          fixedShares.push({ id: 'paternal_grandfather', count: 1, num: 1, den: 6, label: '1/6', type: 'ذو فرض (1/6)', reason: 'والد کی عدم موجودگی اور بیٹے/پوتے کی موجودگی میں دادا کو 1/6 ملتا ہے۔' });
+        } else if (femaleDescendantPresent) {
+          fixedShares.push({ id: 'paternal_grandfather', count: 1, num: 1, den: 6, label: '1/6 + بقیہ عصبہ', type: 'ذو فرض + عصبہ', reason: 'بیٹی/پوتی کے ساتھ دادا کو 1/6 اور بقیہ مال بطور عصبہ ملتا ہے۔', alsoAsabah: true });
+        }
+      } else if (c.paternal_great_grandfather > 0) {
+        if (hasMaleDescendant) {
+          fixedShares.push({ id: 'paternal_great_grandfather', count: 1, num: 1, den: 6, label: '1/6', type: 'ذو فرض (1/6)', reason: 'پردادا کو مذکر اولاد کی موجودگی میں 1/6 ملتا ہے۔' });
+        } else if (femaleDescendantPresent) {
+          fixedShares.push({ id: 'paternal_great_grandfather', count: 1, num: 1, den: 6, label: '1/6 + عصبہ', type: 'ذو فرض + عصبہ', reason: 'پردادا کو 1/6 اور بقیہ عصبہ ملتا ہے۔', alsoAsabah: true });
+        }
+      }
+
+      // Mother & Umariyyatan (Gharrawayn) check
+      const isUmariyyatan = (!hasDescendant && totalSiblings <= 1 && c.father > 0 && c.mother > 0 && (c.husband > 0 || c.wife > 0));
+      if (c.mother > 0) {
+        if (hasDescendant || totalSiblings >= 2) {
+          fixedShares.push({ id: 'mother', count: 1, num: 1, den: 6, label: '1/6', type: 'ذو فرض (1/6)', reason: 'اولاد یا دو/زائد بہن بھائیوں کی موجودگی میں والدہ کا حصہ چھٹا (1/6) ہے۔' });
+        } else if (isUmariyyatan) {
+          // 1/3 of remainder after spouse!
+          if (c.husband > 0) {
+            fixedShares.push({ id: 'mother', count: 1, num: 1, den: 6, label: '1/3 الباقی (1/6)', type: 'مسئلہ عمریتین', reason: 'مسئلہ عمریتین: شوہر، والد اور والدہ کی صورت میں والدہ کو شوہر کے حصے کے بعد باقی مال کا ایک تہائی (یعنی کل کا 1/6) ملتا ہے۔' });
+          } else {
+            fixedShares.push({ id: 'mother', count: 1, num: 1, den: 4, label: '1/3 الباقی (1/4)', type: 'مسئلہ عمریتین', reason: 'مسئلہ عمریتین: بیوہ، والد اور والدہ کی صورت میں والدہ کو بیوہ کے حصے (1/4) کے بعد باقی مال کا ایک تہائی (یعنی کل کا 1/4) ملتا ہے۔' });
+          }
+        } else {
+          fixedShares.push({ id: 'mother', count: 1, num: 1, den: 3, label: '1/3', type: 'ذو فرض (1/3)', reason: 'اولاد اور دو بہن بھائی نہ ہونے کی صورت میں والدہ کا حصہ تہائی (1/3) ہے۔' });
+        }
+      }
+
+      // Grandmothers (share 1/6)
+      const activeGrandmothers = [];
+      if (c.paternal_grandmother > 0) activeGrandmothers.push('paternal_grandmother');
+      if (c.maternal_grandmother > 0) activeGrandmothers.push('maternal_grandmother');
+      if (c.paternal_great_grandmother > 0) activeGrandmothers.push('paternal_great_grandmother');
+      if (c.maternal_great_grandmother > 0) activeGrandmothers.push('maternal_great_grandmother');
+      if (activeGrandmothers.length > 0) {
+        const gmCount = activeGrandmothers.length;
+        activeGrandmothers.forEach(gmId => {
+          fixedShares.push({
+            id: gmId,
+            count: 1,
+            num: 1,
+            den: 6 * gmCount,
+            label: gmCount > 1 ? `1/6 مشترکہ` : '1/6',
+            type: 'ذو فرض (1/6)',
+            reason: 'والدہ کی عدم موجودگی میں صحیحہ دادی/نانی کو چھٹا حصہ (1/6) ملتا ہے۔'
+          });
+        });
+      }
+
+      // Daughters (when no son)
+      if (c.daughter > 0 && c.son === 0) {
+        if (c.daughter === 1) {
+          fixedShares.push({ id: 'daughter', count: 1, num: 1, den: 2, label: '1/2', type: 'ذو فرض (1/2)', reason: 'بیٹا نہ ہونے کی صورت میں ایک بیٹی کا فرض حصہ نصف (1/2) ہے۔' });
+        } else {
+          fixedShares.push({ id: 'daughter', count: c.daughter, num: 2, den: 3, label: '2/3', type: 'ذو فرض (2/3)', reason: 'بیٹا نہ ہونے کی صورت میں دو یا زائد بیٹیوں کا مشترکہ حصہ دو تہائی (2/3) ہے۔' });
+        }
+      }
+
+      // Granddaughters (when no son and no grandson)
+      if (c.granddaughter > 0 && c.son === 0 && c.grandson === 0) {
+        if (c.daughter === 0) {
+          if (c.granddaughter === 1) {
+            fixedShares.push({ id: 'granddaughter', count: 1, num: 1, den: 2, label: '1/2', type: 'ذو فرض (1/2)', reason: 'اولاد نہ ہونے پر ایک پوتی کو بیٹی کے قائم مقام نصف (1/2) ملتا ہے۔' });
+          } else {
+            fixedShares.push({ id: 'granddaughter', count: c.granddaughter, num: 2, den: 3, label: '2/3', type: 'ذو فرض (2/3)', reason: 'دو یا زائد پوتیوں کو دو تہائی (2/3) ملتا ہے۔' });
+          }
+        } else if (c.daughter === 1) {
+          fixedShares.push({ id: 'granddaughter', count: c.granddaughter, num: 1, den: 6, label: '1/6 (تکملہ ثلثین)', type: 'ذو فرض (1/6)', reason: 'ایک بیٹی (1/2) کے ساتھ پوتی کو دو تہائی مکمل کرنے کے لیے چھٹا حصہ (1/6) ملتا ہے۔' });
+        }
+      }
+
+      // Great-granddaughters (when no son, grandson, great-grandson)
+      if (c.great_granddaughter > 0 && c.son === 0 && c.grandson === 0 && c.great_grandson === 0) {
+        const higherFemales = c.daughter + c.granddaughter;
+        if (higherFemales === 0) {
+          if (c.great_granddaughter === 1) {
+            fixedShares.push({ id: 'great_granddaughter', count: 1, num: 1, den: 2, label: '1/2', type: 'ذو فرض (1/2)', reason: 'ایک پڑپوتی کا فرض حصہ نصف (1/2) ہے۔' });
+          } else {
+            fixedShares.push({ id: 'great_granddaughter', count: c.great_granddaughter, num: 2, den: 3, label: '2/3', type: 'ذو فرض (2/3)', reason: 'دو یا زائد پڑپوتیوں کا حصہ 2/3 ہے۔' });
+          }
+        } else if (higherFemales === 1) {
+          fixedShares.push({ id: 'great_granddaughter', count: c.great_granddaughter, num: 1, den: 6, label: '1/6 (تکملہ)', type: 'ذو فرض (1/6)', reason: 'تکملہ ثلثین کے طور پر پڑپوتی کو 1/6 ملتا ہے۔' });
+        }
+      }
+
+      // Real Sisters (when no descendants, no male ascendants, no real brother)
+      if (c.real_sister > 0 && c.real_brother === 0 && !hasDescendant && !hasMaleAscendant) {
+        if (c.real_sister === 1) {
+          fixedShares.push({ id: 'real_sister', count: 1, num: 1, den: 2, label: '1/2', type: 'ذو فرض (1/2)', reason: 'اولاد اور والد/دادا نہ ہونے پر ایک حقیقی بہن کو نصف (1/2) ملتا ہے۔' });
+        } else {
+          fixedShares.push({ id: 'real_sister', count: c.real_sister, num: 2, den: 3, label: '2/3', type: 'ذو فرض (2/3)', reason: 'دو یا زائد حقیقی بہنوں کا فرض حصہ 2/3 ہے۔' });
+        }
+      }
+
+      // Consanguine Sisters (when no descendants, no male ascendants, no real brother, no consanguine brother)
+      if (c.consanguine_sister > 0 && c.consanguine_brother === 0 && c.real_brother === 0 && !hasDescendant && !hasMaleAscendant) {
+        if (c.real_sister === 0) {
+          if (c.consanguine_sister === 1) {
+            fixedShares.push({ id: 'consanguine_sister', count: 1, num: 1, den: 2, label: '1/2', type: 'ذو فرض (1/2)', reason: 'ایک علاتی بہن کا فرض حصہ نصف (1/2) ہے۔' });
+          } else {
+            fixedShares.push({ id: 'consanguine_sister', count: c.consanguine_sister, num: 2, den: 3, label: '2/3', type: 'ذو فرض (2/3)', reason: 'دو یا زائد علاتی بہنوں کا حصہ 2/3 ہے۔' });
+          }
+        } else if (c.real_sister === 1) {
+          fixedShares.push({ id: 'consanguine_sister', count: c.consanguine_sister, num: 1, den: 6, label: '1/6 (تکملہ)', type: 'ذو فرض (1/6)', reason: 'ایک حقیقی بہن (1/2) کے ساتھ علاتی بہن کو تکملہ ثلثین کے لیے 1/6 ملتا ہے۔' });
+        }
+      }
+
+      // Uterine Siblings
+      if (c.uterine_sibling > 0) {
+        if (c.uterine_sibling === 1) {
+          fixedShares.push({ id: 'uterine_sibling', count: 1, num: 1, den: 6, label: '1/6', type: 'ذو فرض (1/6)', reason: 'کلالہ کی صورت میں ایک اخیافی بھائی یا بہن کا حصہ چھٹا (1/6) ہے۔' });
+        } else {
+          fixedShares.push({ id: 'uterine_sibling', count: c.uterine_sibling, num: 1, den: 3, label: '1/3', type: 'ذو فرض (1/3)', reason: 'دو یا زائد اخیافی بہن بھائی ایک تہائی (1/3) میں برابر شریک ہوتے ہیں (مرد و عورت برابر)۔' });
+        }
+      }
+
+      // Identify Residuary (Asabah) group in priority order
+      let asabahGroup = null;
+      if (c.son > 0) {
+        asabahGroup = {
+          type: 'عصبہ بنفسہ / بالغیر (2:1)',
+          reason: 'لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ: بیٹا عصبہ ہے اور بیٹی بھی اس کے ساتھ عصبہ بالغیر بن کر 2:1 کے تناسب سے شریک ہے۔',
+          members: [
+            { id: 'son', count: c.son, weightPerHead: 2 },
+            ...(c.daughter > 0 ? [{ id: 'daughter', count: c.daughter, weightPerHead: 1 }] : [])
+          ]
+        };
+      } else if (c.grandson > 0) {
+        asabahGroup = {
+          type: 'عصبہ (2:1)',
+          reason: 'پوتا عصبہ ہے اور پوتی اس کے ساتھ عصبہ بالغیر (2:1) ہے۔',
+          members: [
+            { id: 'grandson', count: c.grandson, weightPerHead: 2 },
+            ...(c.granddaughter > 0 ? [{ id: 'granddaughter', count: c.granddaughter, weightPerHead: 1 }] : [])
+          ]
+        };
+      } else if (c.great_grandson > 0) {
+        // پوتی جب دو یا زائد بیٹیوں کی وجہ سے اپنے فرض سے محروم ہو تو اپنے درجے سے نیچے کے
+        // عصبہ (پڑپوتے) کے ساتھ عصبہ بالغیر بن جاتی ہے (السراجی)۔
+        const gdJoinsAsabah = c.daughter >= 2 && c.grandson === 0 && c.granddaughter > 0;
+        asabahGroup = {
+          type: 'عصبہ (2:1)',
+          reason: gdJoinsAsabah
+            ? 'پڑپوتا عصبہ ہے؛ پڑپوتی اس کے ساتھ اور پوتی (جو دو بیٹیوں کی وجہ سے فرض سے محروم تھی) بھی اس کے ساتھ 2:1 سے شریک ہے۔'
+            : 'پڑپوتا عصبہ ہے اور پڑپوتی اس کے ساتھ 2:1 سے شریک ہے۔',
+          members: [
+            { id: 'great_grandson', count: c.great_grandson, weightPerHead: 2 },
+            ...(c.great_granddaughter > 0 ? [{ id: 'great_granddaughter', count: c.great_granddaughter, weightPerHead: 1 }] : []),
+            ...(gdJoinsAsabah ? [{ id: 'granddaughter', count: c.granddaughter, weightPerHead: 1 }] : [])
+          ]
+        };
+      } else if (c.father > 0) {
+        asabahGroup = {
+          type: 'عصبہ بنفسہ (والد)',
+          reason: 'مذکر اولاد نہ ہونے پر والد عصبہ بن کر بقیہ ترکہ پاتا ہے۔',
+          members: [{ id: 'father', count: 1, weightPerHead: 1 }],
+          mergeIntoFixedId: femaleDescendantPresent ? 'father' : null
+        };
+      } else if (c.paternal_grandfather > 0) {
+        asabahGroup = {
+          type: 'عصبہ بنفسہ (دادا)',
+          reason: 'والد اور مذکر اولاد نہ ہونے پر دادا عصبہ بنتا ہے۔',
+          members: [{ id: 'paternal_grandfather', count: 1, weightPerHead: 1 }],
+          mergeIntoFixedId: femaleDescendantPresent ? 'paternal_grandfather' : null
+        };
+      } else if (c.paternal_great_grandfather > 0) {
+        asabahGroup = {
+          type: 'عصبہ بنفسہ (پردادا)',
+          reason: 'پردادا عصبہ بن کر بقیہ ترکہ پاتا ہے۔',
+          members: [{ id: 'paternal_great_grandfather', count: 1, weightPerHead: 1 }],
+          mergeIntoFixedId: femaleDescendantPresent ? 'paternal_great_grandfather' : null
+        };
+      } else if (c.real_brother > 0) {
+        asabahGroup = {
+          type: 'عصبہ (2:1)',
+          reason: 'حقیقی بھائی عصبہ ہے اور حقیقی بہن اس کے ساتھ عصبہ بالغیر (2:1) ہے۔',
+          members: [
+            { id: 'real_brother', count: c.real_brother, weightPerHead: 2 },
+            ...(c.real_sister > 0 ? [{ id: 'real_sister', count: c.real_sister, weightPerHead: 1 }] : [])
+          ]
+        };
+      } else if (realSisterIsAsabahMaalGhair) {
+        asabahGroup = {
+          type: 'عصبہ مع الغیر',
+          reason: 'بیٹی یا پوتی کی موجودگی میں حقیقی بہن "عصبہ مع الغیر" بن کر بقیہ ترکہ پاتی ہے۔',
+          members: [{ id: 'real_sister', count: c.real_sister, weightPerHead: 1 }]
+        };
+      } else if (c.consanguine_brother > 0) {
+        asabahGroup = {
+          type: 'عصبہ (2:1)',
+          reason: 'علاتی بھائی عصبہ ہے اور علاتی بہن اس کے ساتھ 2:1 کے تناسب سے شریک ہے۔',
+          members: [
+            { id: 'consanguine_brother', count: c.consanguine_brother, weightPerHead: 2 },
+            ...(c.consanguine_sister > 0 ? [{ id: 'consanguine_sister', count: c.consanguine_sister, weightPerHead: 1 }] : [])
+          ]
+        };
+      } else if (consanguineSisterIsAsabahMaalGhair) {
+        asabahGroup = {
+          type: 'عصبہ مع الغیر',
+          reason: 'بیٹی/پوتی کے ساتھ علاتی بہن عصبہ مع الغیر بن کر بقیہ مال پاتی ہے۔',
+          members: [{ id: 'consanguine_sister', count: c.consanguine_sister, weightPerHead: 1 }]
+        };
+      } else {
+        for (const ag of agnateChain) {
+          if (c[ag.id] > 0) {
+            asabahGroup = {
+              type: 'عصبہ بنفسہ',
+              reason: ag.label + ' قریبی عصبہ ہونے کی وجہ سے بقیہ ترکہ کا حقدار ہے۔',
+              members: [{ id: ag.id, count: c[ag.id], weightPerHead: 1 }]
+            };
+            break;
+          }
+        }
+      }
+
+      // Compute Base Denominator (Asl al-Mas'alah)
+      let baseDen = 1;
+      fixedShares.forEach(fs => {
+        baseDen = lcm(baseDen, fs.den);
+      });
+
+      let sumFixedUnits = 0;
+      fixedShares.forEach(fs => {
+        fs.units = (baseDen / fs.den) * fs.num;
+        sumFixedUnits += fs.units;
+      });
+
+      let caseStatus = 'Normal (عام مسئلہ)';
+      let finalDen = baseDen;
+
+      // Case A: AWL (عول): Fixed shares exceed 100%
+      if (sumFixedUnits > baseDen) {
+        finalDen = sumFixedUnits;
+        caseStatus = `مسئلہ عول (Awl): اصل مسئلہ ${baseDen} سے بڑھ کر ${finalDen} ہو گیا`;
+        notes.push(`اس مسئلے میں ذوی الفروض کے حصوں کا مجموعہ اصل مسئلہ (${baseDen}) سے بڑھ کر (${finalDen}) ہو گیا ہے، جسے فقہ میں "عول" کہتے ہیں۔ اس لیے تمام اصحابِ فرائض کے حصوں میں متناسب کمی ہو گئی اور عصبہ کے لیے کچھ نہیں بچا۔`);
+        fixedShares.forEach(fs => {
+          activeHeirs.push({
+            id: fs.id,
+            count: fs.count,
+            type: fs.type + ' (عول)',
+            fixedLabel: fs.label,
+            siham: fs.units,
+            totalSiham: finalDen,
+            shareRatio: fs.units / finalDen,
+            reason: fs.reason
+          });
+        });
+      }
+      // Case B: Exact 100% covered by Fixed Shares
+      else if (sumFixedUnits === baseDen) {
+        caseStatus = `مکمل فرائض (اصل مسئلہ: ${baseDen})`;
+        fixedShares.forEach(fs => {
+          activeHeirs.push({
+            id: fs.id,
+            count: fs.count,
+            type: fs.type,
+            fixedLabel: fs.label,
+            siham: fs.units,
+            totalSiham: finalDen,
+            shareRatio: fs.units / finalDen,
+            reason: fs.reason
+          });
+        });
+      }
+      // Case C: Remainder exists (sumFixedUnits < baseDen)
+      else {
+        const remainderUnits = baseDen - sumFixedUnits;
+
+        if (asabahGroup) {
+          // Distribute remainder to Asabah
+          caseStatus = `فرائض مع العصبات (اصل مسئلہ: ${baseDen})`;
+          let totalWeight = 0;
+          asabahGroup.members.forEach(m => {
+            totalWeight += m.count * m.weightPerHead;
+          });
+
+          if (asabahGroup.mergeIntoFixedId) {
+            // Father or Grandfather gets 1/6 + Remainder
+            fixedShares.forEach(fs => {
+              const extra = (fs.id === asabahGroup.mergeIntoFixedId) ? remainderUnits : 0;
+              const tot = fs.units + extra;
+              activeHeirs.push({
+                id: fs.id,
+                count: fs.count,
+                type: fs.type,
+                fixedLabel: fs.label,
+                siham: tot,
+                totalSiham: baseDen,
+                shareRatio: tot / baseDen,
+                reason: fs.reason
+              });
+            });
+          } else {
+            // Scale by totalWeight for exact integer Siham (Tashih)
+            const scale = totalWeight / gcd(remainderUnits, totalWeight);
+            finalDen = baseDen * scale;
+            fixedShares.forEach(fs => {
+              const s = fs.units * scale;
+              activeHeirs.push({
+                id: fs.id,
+                count: fs.count,
+                type: fs.type,
+                fixedLabel: fs.label,
+                siham: s,
+                totalSiham: finalDen,
+                shareRatio: s / finalDen,
+                reason: fs.reason
+              });
+            });
+            const scaledRem = remainderUnits * scale;
+            asabahGroup.members.forEach(m => {
+              const groupUnits = (scaledRem / totalWeight) * (m.count * m.weightPerHead);
+              activeHeirs.push({
+                id: m.id,
+                count: m.count,
+                type: asabahGroup.type,
+                fixedLabel: 'بقیہ (عصبہ)',
+                siham: groupUnits,
+                totalSiham: finalDen,
+                shareRatio: groupUnits / finalDen,
+                reason: asabahGroup.reason
+              });
+            });
+          }
+        } else {
+          // No Asabah! Check Radd (رد) or Distant Kindred (ذوی الارحام)
+          const nonSpouseFixed = fixedShares.filter(fs => fs.id !== 'husband' && fs.id !== 'wife');
+          const spouseFixed = fixedShares.find(fs => fs.id === 'husband' || fs.id === 'wife');
+
+          if (nonSpouseFixed.length > 0) {
+            // Apply Radd to non-spouse Ashab al-Faraid
+            caseStatus = 'مسئلہ رد (Radd: بقیہ مال ذوی الفروض پر واپس)';
+            notes.push('عصبہ موجود نہ ہونے کی وجہ سے بقیہ ترکہ زوجین (شوہر/بیوی) کے علاوہ دیگر اصحابِ فرائض پر ان کے حصوں کے تناسب سے واپس (رد) کر دیا گیا ہے۔');
+            const nonSpouseSum = nonSpouseFixed.reduce((acc, x) => acc + x.units, 0);
+
+            if (!spouseFixed) {
+              finalDen = nonSpouseSum;
+              nonSpouseFixed.forEach(fs => {
+                activeHeirs.push({
+                  id: fs.id,
+                  count: fs.count,
+                  type: fs.type + ' + رد',
+                  fixedLabel: fs.label + ' (رد)',
+                  siham: fs.units,
+                  totalSiham: finalDen,
+                  shareRatio: fs.units / finalDen,
+                  reason: fs.reason + ' (مع رد)'
+                });
+              });
+            } else {
+              // Spouse gets exact fixed share (1/2, 1/4, 1/8); remainder goes proportionally to nonSpouseFixed
+              const spDen = spouseFixed.den;
+              const spNum = spouseFixed.num;
+              const remAfterSpouse = spDen - spNum;
+              finalDen = spDen * nonSpouseSum;
+              const spSiham = spNum * nonSpouseSum;
+
+              activeHeirs.push({
+                id: spouseFixed.id,
+                count: spouseFixed.count,
+                type: spouseFixed.type,
+                fixedLabel: spouseFixed.label,
+                siham: spSiham,
+                totalSiham: finalDen,
+                shareRatio: spSiham / finalDen,
+                reason: spouseFixed.reason + ' (زوجین پر رد نہیں ہوتا)'
+              });
+
+              nonSpouseFixed.forEach(fs => {
+                const s = remAfterSpouse * fs.units;
+                activeHeirs.push({
+                  id: fs.id,
+                  count: fs.count,
+                  type: fs.type + ' + رد',
+                  fixedLabel: fs.label + ' + رد',
+                  siham: s,
+                  totalSiham: finalDen,
+                  shareRatio: s / finalDen,
+                  reason: fs.reason + ' (بقیہ مال رد کے ذریعے ملا)'
+                });
+              });
+            }
+          } else {
+            // Either ONLY spouse is present, or NO fixed/asabah heirs at all -> Check Dhawu al-Arham
+            const arhamPriority = [
+              {
+                className: 'صنف اول (نواسے اور نواسیاں)',
+                members: [
+                  ...(c.daughters_son > 0 ? [{ id: 'daughters_son', count: c.daughters_son, w: 2 }] : []),
+                  ...(c.daughters_daughter > 0 ? [{ id: 'daughters_daughter', count: c.daughters_daughter, w: 1 }] : [])
+                ]
+              },
+              {
+                className: 'صنف دوم (نانا)',
+                members: [
+                  ...(c.maternal_grandfather > 0 ? [{ id: 'maternal_grandfather', count: c.maternal_grandfather, w: 1 }] : [])
+                ]
+              },
+              {
+                className: 'صنف سوم (بھانجے، بھانجیاں، بھتیجیاں)',
+                members: [
+                  ...(c.brothers_daughter > 0 ? [{ id: 'brothers_daughter', count: c.brothers_daughter, w: 2 }] : []),
+                  ...(c.sisters_son > 0 ? [{ id: 'sisters_son', count: c.sisters_son, w: 2 }] : []),
+                  ...(c.sisters_daughter > 0 ? [{ id: 'sisters_daughter', count: c.sisters_daughter, w: 1 }] : [])
+                ]
+              },
+              {
+                className: 'صنف چہارم (پھوپھی، ماموں، خالہ)',
+                members: [
+                  ...(c.paternal_aunt > 0 ? [{ id: 'paternal_aunt', count: c.paternal_aunt, w: 2 }] : []),
+                  ...(c.maternal_uncle > 0 ? [{ id: 'maternal_uncle', count: c.maternal_uncle, w: 2 }] : []),
+                  ...(c.maternal_aunt > 0 ? [{ id: 'maternal_aunt', count: c.maternal_aunt, w: 1 }] : [])
+                ]
+              }
+            ];
+
+            const activeArhamClass = arhamPriority.find(cl => cl.members.length > 0);
+
+            if (activeArhamClass) {
+              caseStatus = 'مسئلہ ذوی الارحام (' + activeArhamClass.className + ')';
+              notes.push('اصحاب الفرائض (سوائے زوجین) اور عصبات نہ ہونے کی وجہ سے ترکہ ذوی الارحام (' + activeArhamClass.className + ') میں تقسیم کیا گیا ہے۔');
+              const totalW = activeArhamClass.members.reduce((acc, m) => acc + m.count * m.w, 0);
+
+              if (spouseFixed) {
+                const spDen = spouseFixed.den;
+                const spNum = spouseFixed.num;
+                const rem = spDen - spNum;
+                finalDen = spDen * totalW;
+                activeHeirs.push({
+                  id: spouseFixed.id,
+                  count: spouseFixed.count,
+                  type: spouseFixed.type,
+                  fixedLabel: spouseFixed.label,
+                  siham: spNum * totalW,
+                  totalSiham: finalDen,
+                  shareRatio: (spNum * totalW) / finalDen,
+                  reason: spouseFixed.reason
+                });
+                activeArhamClass.members.forEach(m => {
+                  const s = rem * (m.count * m.w);
+                  activeHeirs.push({
+                    id: m.id,
+                    count: m.count,
+                    type: 'ذوی الارحام',
+                    fixedLabel: 'بقیہ ذوی الارحام',
+                    siham: s,
+                    totalSiham: finalDen,
+                    shareRatio: s / finalDen,
+                    reason: activeArhamClass.className + ' کے تحت بطور ذوی الارحام وارث۔'
+                  });
+                });
+              } else {
+                finalDen = totalW;
+                activeArhamClass.members.forEach(m => {
+                  const s = m.count * m.w;
+                  activeHeirs.push({
+                    id: m.id,
+                    count: m.count,
+                    type: 'ذوی الارحام',
+                    fixedLabel: 'ذوی الارحام',
+                    siham: s,
+                    totalSiham: finalDen,
+                    shareRatio: s / finalDen,
+                    reason: activeArhamClass.className + ' کے تحت بطور ذوی الارحام وارث۔'
+                  });
+                });
+              }
+            } else if (spouseFixed) {
+              // Only Husband or Wife exists in the entire world (Fatwa of late Hanafi jurists allows Radd to spouse when no Arham exist)
+              caseStatus = 'صرف زوج/زوجہ (تتمہ رد علی الزوجین عند عدم الارحام)';
+              notes.push('کوئی ذو فرض، عصبہ یا ذوی الارحام موجود نہ ہونے پر متاخرین فقہائے احناف کے مفتیٰ بہ قول کے مطابق کل ترکہ زوج/زوجہ کو ملے گا۔');
+              finalDen = spouseFixed.count;
+              activeHeirs.push({
+                id: spouseFixed.id,
+                count: spouseFixed.count,
+                type: 'فرض + رد (عند عدم القرابة)',
+                fixedLabel: '1/1 (کل ترکہ)',
+                siham: spouseFixed.count,
+                totalSiham: finalDen,
+                shareRatio: 1,
+                reason: 'کسی دوسرے رشتہ دار کے نہ ہونے کی وجہ سے کل ترکہ شوہر/بیوی کو دیا گیا۔'
+              });
+            }
+          }
+        }
+
+        // If Ashab al-Faraid (non-spouse) or Asabah were present, mark any selected Dhawu al-Arham as excluded
+        const hasRealHeirs = activeHeirs.some(h => h.type !== 'ذوی الارحام' && h.id !== 'husband' && h.id !== 'wife');
+        if (hasRealHeirs) {
+          const arhamIds = ['daughters_son', 'daughters_daughter', 'maternal_grandfather', 'sisters_son', 'sisters_daughter', 'brothers_daughter', 'paternal_aunt', 'maternal_aunt', 'maternal_uncle'];
+          arhamIds.forEach(aid => {
+            if (countsInput[aid] > 0) {
+              excludedHeirs.push({
+                id: aid,
+                count: countsInput[aid],
+                reason: 'اصحاب الفرائض یا عصبات کی موجودگی میں ذوی الارحام کو وراثت نہیں ملتی۔'
+              });
+            }
+          });
+        }
+      }
+
+      // Tashih (Make sure each group's siham is divisible by its headcount if equal shares)
+      let multiplier = 1;
+      activeHeirs.forEach(h => {
+        if (h.count > 1) {
+          const g = gcd(h.siham, h.count);
+          const needed = h.count / g;
+          multiplier = lcm(multiplier, needed);
+        }
+      });
+      if (multiplier > 1) {
+        finalDen *= multiplier;
+        activeHeirs.forEach(h => {
+          h.siham *= multiplier;
+          h.totalSiham = finalDen;
+        });
+      }
+
+      return {
+        activeHeirs,
+        excludedHeirs,
+        notes,
+        caseStatus,
+        finalDen
+      };
+    }
+
+    // ==================== CALCULATE & RENDER MIRATH ====================
+    function formatLandBreakdown(totalMarlas, marlaSqFt) {
+      if (totalMarlas <= 0.0001) return '';
+      const kanals = Math.floor(totalMarlas / 20);
+      const remMarlas = totalMarlas - (kanals * 20);
+      const sqft = totalMarlas * marlaSqFt;
+      const parts = [];
+      if (kanals > 0) parts.push(`${kanals} کنال`);
+      if (remMarlas > 0.01) parts.push(`${remMarlas.toFixed(2)} مرلہ`);
+      return `${parts.join(' ')} (${formatNum(sqft, 0)} Sq.Ft)`;
+    }
+
+    function calculateMirath() {
+      const currency = document.getElementById('currencySelect').value || 'PKR';
+      const gross = Math.max(0, parseFloat(document.getElementById('grossEstateInput').value) || 0);
+      const funeral = Math.max(0, parseFloat(document.getElementById('funeralExpenseInput').value) || 0);
+      const debt = Math.max(0, parseFloat(document.getElementById('debtInput').value) || 0);
+      const rawWasiyyah = Math.max(0, parseFloat(document.getElementById('wasiyyahInput').value) || 0);
+      const heirConsent = document.getElementById('wasiyyahHeirConsent').checked;
+
+      const afterFuneralDebt = Math.max(0, gross - funeral - debt);
+      const maxLegalWasiyyah = afterFuneralDebt / 3;
+      const alertBox = document.getElementById('wasiyyahAlertBox');
+
+      let appliedWasiyyah = rawWasiyyah;
+      if (rawWasiyyah > maxLegalWasiyyah + 0.01) {
+        alertBox.classList.remove('hidden');
+        if (!heirConsent) {
+          appliedWasiyyah = maxLegalWasiyyah;
+        } else {
+          appliedWasiyyah = Math.min(afterFuneralDebt, rawWasiyyah);
+        }
+      } else {
+        alertBox.classList.add('hidden');
+      }
+
+      const netEstate = Math.max(0, afterFuneralDebt - appliedWasiyyah);
+      document.getElementById('netEstateDisplay').textContent = `${currency} ${formatNum(netEstate, 0)}`;
+      document.getElementById('netEstateBreakdownText').textContent =
+        `${formatNum(gross)} (کل) − ${formatNum(funeral)} (کفن دفن) − ${formatNum(debt)} (قرض) − ${formatNum(appliedWasiyyah)} (وصیت)`;
+
+      // Land calculation
+      const marlaSqFt = parseFloat(document.getElementById('marlaSizeSelect').value) || 272.25;
+      const acres = Math.max(0, parseFloat(document.getElementById('landAcres').value) || 0);
+      const kanals = Math.max(0, parseFloat(document.getElementById('landKanals').value) || 0);
+      const marlas = Math.max(0, parseFloat(document.getElementById('landMarlas').value) || 0);
+      const extraSqFt = Math.max(0, parseFloat(document.getElementById('landSqFt').value) || 0);
+
+      const totalMarlas = (acres * 160) + (kanals * 20) + marlas + (extraSqFt / marlaSqFt);
+      const totalSqFt = totalMarlas * marlaSqFt;
+      const totalSqYards = totalSqFt / 9;
+      document.getElementById('totalLandSummary').textContent =
+        totalMarlas > 0
+          ? `کل قابلِ تقسیم رقبہ: ${(totalMarlas / 20).toFixed(2)} کنال (${totalMarlas.toFixed(2)} مرلہ | ${formatNum(totalSqYards, 1)} مربع گز | ${formatNum(totalSqFt, 0)} مربع فٹ)`
+          : 'کوئی زمین درج نہیں کی گئی (صرف نقدی/مالیت تقسیم ہوگی)';
+
+      // Solve Hanafi Mirath
+      const result = solveHanafiMirath(heirCounts);
+      document.getElementById('masalahSummaryBadge').textContent =
+        `فقہی نوعیت: ${result.caseStatus} • کل تصحیح شدہ سہام (Total Siham): ${result.finalDen}`;
+
+      const tbody = document.getElementById('mirathResultBody');
+      const tfoot = document.getElementById('mirathResultFoot');
+      let rowsHtml = '';
+
+      if (result.activeHeirs.length === 0) {
+        rowsHtml = `<tr><td colspan="9" class="py-6 text-center text-slate-500 font-semibold">براہِ کرم اوپر کم از کم ایک زندہ وارث منتخب کریں۔</td></tr>`;
+        tfoot.innerHTML = '';
+      } else {
+        // Largest-remainder rounding so displayed group amounts add up exactly to the net estate
+        const exactGroups = result.activeHeirs.map(h => netEstate * h.shareRatio);
+        const dispGroups = exactGroups.map(x => Math.floor(x));
+        let leftoverRs = Math.round(netEstate) - dispGroups.reduce((a, b) => a + b, 0);
+        exactGroups.map((x, i) => [x - Math.floor(x), i]).sort((a, b) => b[0] - a[0]).forEach(([frac, i]) => {
+          if (leftoverRs > 0) { dispGroups[i] += 1; leftoverRs -= 1; }
+        });
+        result.activeHeirs.forEach((h, idx) => {
+          const name = getHeirDisplayName(h.id);
+          const pct = (h.shareRatio * 100).toFixed(2);
+          const groupCash = dispGroups[idx];
+          const perPersonCash = groupCash / h.count;
+          const groupLandMarlas = totalMarlas * h.shareRatio;
+
+          rowsHtml += `
+            <tr class="hover:bg-emerald-50/40 transition">
+              <td class="py-3 px-3 font-bold text-slate-900">${name}</td>
+              <td class="py-3 px-2 text-center font-mono-num font-semibold">${h.count}</td>
+              <td class="py-3 px-2 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-xs font-semibold">${h.type}</span></td>
+              <td class="py-3 px-2 text-center font-mono-num text-xs font-bold text-slate-700">${h.fixedLabel}</td>
+              <td class="py-3 px-2 text-center font-mono-num font-bold text-emerald-800">${h.siham} / ${h.totalSiham}</td>
+              <td class="py-3 px-2 text-center font-mono-num font-semibold">${pct}%</td>
+              <td class="py-3 px-3 text-center font-mono-num text-slate-800">${currency} ${formatNum(perPersonCash, 0)}</td>
+              <td class="py-3 px-3 text-center font-mono-num font-bold text-emerald-900">${currency} ${formatNum(groupCash, 0)}</td>
+              <td class="py-3 px-3 text-center text-xs text-slate-700">${formatLandBreakdown(groupLandMarlas, marlaSqFt)}</td>
+            </tr>`;
+        });
+
+        tfoot.innerHTML = `
+          <tr>
+            <td class="py-3 px-3">میزان (Total Distributed)</td>
+            <td class="py-3 px-2 text-center font-mono-num">${result.activeHeirs.reduce((a, b) => a + b.count, 0)}</td>
+            <td colspan="2" class="py-3 px-2 text-center">مکمل تقسیم</td>
+            <td class="py-3 px-2 text-center font-mono-num">${result.finalDen} / ${result.finalDen}</td>
+            <td class="py-3 px-2 text-center font-mono-num">100.00%</td>
+            <td class="py-3 px-3 text-center"></td>
+            <td class="py-3 px-3 text-center font-mono-num text-emerald-900">${currency} ${formatNum(netEstate, 0)}</td>
+            <td class="py-3 px-3 text-center text-xs">${formatLandBreakdown(totalMarlas, marlaSqFt)}</td>
+          </tr>`;
+      }
+      tbody.innerHTML = rowsHtml;
+
+      // Render Fiqhi Proof & Excluded Heirs
+      const expBox = document.getElementById('fiqhExplanationsList');
+      let expHtml = '';
+      result.notes.forEach(n => {
+        expHtml += `<div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-950">📌 <strong>اصولی نوٹ:</strong> ${n}</div>`;
+      });
+      result.activeHeirs.forEach(h => {
+        expHtml += `<div class="p-2.5 rounded-lg bg-white border border-emerald-200 text-slate-800">✅ <strong>${getHeirDisplayName(h.id)} (${h.count}):</strong> ${h.reason}</div>`;
+      });
+      result.excludedHeirs.forEach(ex => {
+        expHtml += `<div class="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-900">🚫 <strong>${getHeirDisplayName(ex.id)} (${ex.count}): محجوب (Excluded):</strong> ${ex.reason}</div>`;
+      });
+      expBox.innerHTML = expHtml || '<div class="text-slate-500">ورثاء منتخب کریں تاکہ شرعی دلائل ظاہر ہوں۔</div>';
+
+      // Haml (Unborn Child) Dual Scenario Calculation
+      const hamlEnabled = document.getElementById('hamlToggle').checked;
+      const hamlBox = document.getElementById('hamlComparisonBox');
+      if (hamlEnabled) {
+        hamlBox.classList.remove('hidden');
+        const countsIfBoy = Object.assign({}, heirCounts, { son: (heirCounts.son || 0) + 1 });
+        const countsIfGirl = Object.assign({}, heirCounts, { daughter: (heirCounts.daughter || 0) + 1 });
+        const resBoy = solveHanafiMirath(countsIfBoy);
+        const resGirl = solveHanafiMirath(countsIfGirl);
+
+        const allIds = Array.from(new Set([
+          ...resBoy.activeHeirs.map(x => x.id),
+          ...resGirl.activeHeirs.map(x => x.id)
+        ]));
+
+        let hamlRows = '';
+        let totalSafePaid = 0;
+
+        allIds.forEach(id => {
+          const bHeir = resBoy.activeHeirs.find(x => x.id === id);
+          const gHeir = resGirl.activeHeirs.find(x => x.id === id);
+          const baseCount = heirCounts[id] || 0;
+          if (baseCount === 0) return; // The unborn baby itself is accounted in reserve
+
+          const bPerHeadRatio = bHeir ? (bHeir.shareRatio / bHeir.count) : 0;
+          const gPerHeadRatio = gHeir ? (gHeir.shareRatio / gHeir.count) : 0;
+
+          const boyGroupCash = netEstate * bPerHeadRatio * baseCount;
+          const girlGroupCash = netEstate * gPerHeadRatio * baseCount;
+          const immediateSafeCash = Math.min(boyGroupCash, girlGroupCash);
+          totalSafePaid += immediateSafeCash;
+
+          hamlRows += `
+            <tr class="border-b border-amber-200/70">
+              <td class="py-2 px-3 font-bold">${getHeirDisplayName(id)} (${baseCount})</td>
+              <td class="py-2 px-3 text-center font-mono-num">${currency} ${formatNum(boyGroupCash, 0)}</td>
+              <td class="py-2 px-3 text-center font-mono-num">${currency} ${formatNum(girlGroupCash, 0)}</td>
+              <td class="py-2 px-3 text-center font-mono-num font-bold text-emerald-900 bg-emerald-50">${currency} ${formatNum(immediateSafeCash, 0)}</td>
+            </tr>`;
+        });
+
+        const reservedForBaby = Math.max(0, netEstate - totalSafePaid);
+        const hamlWarn = (deceasedGender === 'male' && (heirCounts.wife || 0) === 0)
+          ? `<div class="mb-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs sm:text-sm font-semibold">تنبیہ: حمل کا یہ حساب اس صورت کے لیے ہے جب میت کی بیوہ حاملہ ہو۔ آپ نے ورثاء میں بیوہ منتخب نہیں کی، اس لیے یہ موازنہ صرف فرضی رہنمائی ہے، اس پر تقسیم نہ کریں۔</div>`
+          : '';
+        document.getElementById('hamlComparisonTable').innerHTML = hamlWarn + `
+          <table class="w-full text-xs sm:text-sm text-right bg-white rounded-xl overflow-hidden border border-amber-300">
+            <thead class="bg-amber-200/80 text-amber-950">
+              <tr>
+                <th class="py-2 px-3">موجودہ وارث</th>
+                <th class="py-2 px-3 text-center">اگر لڑکا پیدا ہو (Boy Scenario)</th>
+                <th class="py-2 px-3 text-center">اگر لڑکی پیدا ہو (Girl Scenario)</th>
+                <th class="py-2 px-3 text-center">فوری قابلِ ادائیگی یقینی حصہ</th>
+              </tr>
+            </thead>
+            <tbody>${hamlRows}</tbody>
+            <tfoot class="bg-amber-100 font-bold text-amber-950">
+              <tr>
+                <td colspan="3" class="py-2.5 px-3">بچے کی ولادت تک موقوف (Reserved Share for Unborn Child & Adjustments):</td>
+                <td class="py-2.5 px-3 text-center font-mono-num text-rose-800">${currency} ${formatNum(reservedForBaby, 0)}</td>
+              </tr>
+            </tfoot>
+          </table>`;
+      } else {
+        hamlBox.classList.add('hidden');
+      }
+
+      // Update Chart
+      updateMirathChart(result.activeHeirs, netEstate);
+      // Populate Munasakha dropdown
+      populateMunasakhaDropdown(result.activeHeirs, netEstate);
+      window.__munasakhaTransfer = { activeHeirs: result.activeHeirs.map(h => ({ id: h.id, shareRatio: h.shareRatio, count: h.count })), netEstate: netEstate };
+    }
+
+    function updateMirathChart(activeHeirs, netEstate) {
+      const ctx = document.getElementById('mirathChartCanvas');
+      if (!ctx || typeof Chart === 'undefined') return;
+      const labels = activeHeirs.map(h => `${getHeirDisplayName(h.id)} (${(h.shareRatio * 100).toFixed(1)}%)`);
+      const values = activeHeirs.map(h => Math.round(netEstate * h.shareRatio));
+      const palette = ['#047857', '#34C759', '#0E9594', '#0071E3', '#F59E0B', '#AF52DE', '#FF9500', '#5AC8FA', '#A47A46', '#FF6482', '#64D2FF', '#30DB5B'];
+      const chartDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      if (mirathChartInstance && mirathChartDark === chartDark) {
+        mirathChartInstance.data.labels = labels;
+        const ds0 = mirathChartInstance.data.datasets[0];
+        ds0.data = values;
+        ds0.backgroundColor = palette.slice(0, Math.max(1, values.length));
+        mirathChartInstance.update();
+        return;
+      }
+      if (mirathChartInstance) {
+        mirathChartInstance.destroy();
+      }
+      mirathChartDark = chartDark;
+      mirathChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: palette.slice(0, Math.max(1, values.length)),
+            borderWidth: 2,
+            borderColor: chartDark ? '#1C1C1E' : '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { size: 11 }, color: chartDark ? '#E5E5EA' : '#666666' }
+            }
+          }
+        }
+      });
+    }
+
+    const iosTabbarEl = document.querySelector('.site-navbar');
+    window.addEventListener('scroll', () => {
+      if (iosTabbarEl) iosTabbarEl.classList.toggle('is-scrolled', window.scrollY > 8);
+    }, { passive: true });
+    const iosTabtrackEl = document.querySelector('.site-navlinks');
+    if (iosTabtrackEl) {
+      iosTabtrackEl.addEventListener('keydown', e => {
+        if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) return;
+        const btns = Array.from(iosTabtrackEl.querySelectorAll('a'));
+        const cur = btns.indexOf(document.activeElement);
+        if (cur < 0) return;
+        e.preventDefault();
+        const nxt = e.key === 'Home' ? 0 : (e.key === 'End' ? btns.length - 1 : (cur + (e.key === 'ArrowRight' ? 1 : -1) + btns.length) % btns.length);
+        btns[nxt].focus();
+        btns[nxt].click();
+      });
+    }
+
+    // ==================== SMART PARSER & PRESETS ====================
+    function loadMirathPreset(type) {
+      Object.keys(heirCounts).forEach(k => { heirCounts[k] = 0; });
+      document.getElementById('funeralExpenseInput').value = 50000;
+      document.getElementById('debtInput').value = 450000;
+      document.getElementById('wasiyyahInput').value = 500000;
+      document.getElementById('grossEstateInput').value = 10000000;
+      document.getElementById('hamlToggle').checked = false;
+
+      if (type === 'standard') {
+        setDeceasedGender('male');
+        heirCounts.wife = 1;
+        heirCounts.son = 2;
+        heirCounts.daughter = 2;
+        heirCounts.father = 1;
+        heirCounts.mother = 1;
+      } else if (type === 'awl') {
+        setDeceasedGender('female');
+        heirCounts.husband = 1;
+        heirCounts.real_sister = 2;
+        heirCounts.mother = 1;
+      } else if (type === 'radd') {
+        setDeceasedGender('male');
+        heirCounts.wife = 1;
+        heirCounts.daughter = 2;
+        heirCounts.mother = 1;
+      } else if (type === 'hajb') {
+        setDeceasedGender('male');
+        heirCounts.wife = 1;
+        heirCounts.son = 1;
+        heirCounts.grandson = 2;
+        heirCounts.real_brother = 2;
+        heirCounts.real_paternal_uncle = 1;
+      } else if (type === 'arham') {
+        setDeceasedGender('male');
+        heirCounts.daughters_son = 1;
+        heirCounts.daughters_daughter = 2;
+        heirCounts.maternal_aunt = 1;
+      }
+      renderHeirsGrid();
+      calculateMirath();
+      showToast('مثالی کیس لوڈ ہو گیا ہے!', '✨');
+    }
+
+    // ==================== SMART AUTOFILLER (advanced system) ====================
+    // Pipeline: normalize (digits/letters, English + Roman Urdu + Urdu script)
+    // -> heir lexicon match, longest phrase first, quantities as digits or
+    // number-words -> money (estate / debt / wasiyyat) and land extraction ->
+    // sharai validation with the SAME hajb rules as the heir cards
+    // (getHeirBlockInfo): anyone who cannot inherit in this case is NOT made
+    // an heir; they are reported with the reason instead -> apply + report.
+    const SMART_NUM_EN = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20 };
+    const SMART_NUM_RO = { aik: 1, ik: 1, ek: 1, do: 2, teen: 3, tin: 3, char: 4, chaar: 4, panch: 5, paanch: 5, chhe: 6, chhay: 6, chay: 6, saat: 7, aath: 8, nau: 9, das: 10, gyarah: 11, barah: 12, terah: 13, chaudah: 14, pandrah: 15, solah: 16, satrah: 17, atharah: 18, unnis: 19, bees: 20 };
+    const SMART_NUM_UR = { 'واحد': 1, 'اثنان': 2, 'ثلاثہ': 3, 'اربعہ': 4, 'خمسہ': 5, 'ستہ': 6, 'سبعہ': 7, 'ثمانیہ': 8, 'تسعہ': 9, 'عشرہ': 10, 'ایک': 1, 'دو': 2, 'تین': 3, 'چار': 4, 'پانچ': 5, 'چھ': 6, 'سات': 7, 'آٹھ': 8, 'نو': 9, 'دس': 10, 'گیارہ': 11, 'بارہ': 12, 'تیرہ': 13, 'چودہ': 14, 'پندرہ': 15, 'سولہ': 16, 'سترہ': 17, 'اٹھارہ': 18, 'انیس': 19, 'بیس': 20 };
+    const SMART_TERMS = [
+      { id: 'wife', terms: ['wife', 'wives', 'biwi', 'bewa', 'bewi', 'زوجہ', 'بیوی', 'بیوہ', 'بیگم'] },
+      { id: 'husband', terms: ['husband', 'shohar', 'شوہر', 'خاوند'] },
+      { id: 'son', terms: ['son', 'sons', 'beta', 'bete', 'betay', 'بیٹا', 'بیٹے', 'ابن'] },
+      { id: 'daughter', terms: ['daughter', 'daughters', 'beti', 'betiyan', 'betian', 'بیٹی', 'بیٹیاں', 'بنت'] },
+      { id: 'grandson', terms: ['grandson', 'grandsons', 'grand son', 'grand sons', 'pota', 'pote', 'potay', 'پوتا', 'پوتے'] },
+      { id: 'granddaughter', terms: ['granddaughter', 'granddaughters', 'grand daughter', 'grand daughters', 'poti', 'potiyan', 'پوتی', 'پوتیاں'] },
+      { id: 'great_grandson', terms: ['great grandson', 'great grandsons', 'par pota', 'parpota', 'پر پوتا'] },
+      { id: 'great_granddaughter', terms: ['great granddaughter', 'great granddaughters', 'par poti', 'parpoti', 'پر پوتی'] },
+      { id: 'father', terms: ['father', 'walid', 'waalid', 'والد', 'ابو', 'baap', 'bap', 'abbu', 'abba'] },
+      { id: 'mother', terms: ['mother', 'walida', 'walidah', 'walda', 'والدہ', 'اماں', 'امی', 'امّی', 'ماں', 'maa', 'ammi', 'amma'] },
+      { id: 'paternal_grandfather', terms: ['paternal grandfather', 'grandfather', 'dada', 'دادا', 'جد'] },
+      { id: 'paternal_great_grandfather', terms: ['paternal great grandfather', 'great grandfather', 'par dada', 'pardada', 'پر دادا'] },
+      { id: 'paternal_grandmother', terms: ['paternal grandmother', 'grandmother', 'dadi', 'دادی', 'جدہ'] },
+      { id: 'paternal_great_grandmother', terms: ['paternal great grandmother', 'great grandmother', 'par dadi', 'pardadi', 'پر دادی'] },
+      { id: 'maternal_grandfather', terms: ['maternal grandfather', 'nana', 'نانا'] },
+      { id: 'maternal_grandmother', terms: ['maternal grandmother', 'nani', 'نانی'] },
+      { id: 'maternal_great_grandmother', terms: ['maternal great grandmother', 'par nani', 'parnani', 'پر نانی'] },
+      { id: 'real_brother', terms: ['full brother', 'full brothers', 'real brother', 'real brothers', 'brother', 'brothers', 'saga bhai', 'sagay bhai', 'bhai', 'bhaiyon', 'bhaiya', 'سگا بھائی', 'بھائی'] },
+      { id: 'real_sister', terms: ['full sister', 'full sisters', 'real sister', 'real sisters', 'sister', 'sisters', 'sagi behan', 'sagay behan', 'sagi behnein', 'behnein', 'behnain', 'behen', 'سگی بہن', 'بہن', 'بہنیں'] },
+      { id: 'consanguine_brother', terms: ['consanguine brother', 'paternal brother', 'half brother', 'half brothers', 'step brother', 'step brothers', 'sotela bhai', 'سوتیلا بھائی', 'baap shariq bhai', 'باپ شریک بھائی'] },
+      { id: 'consanguine_sister', terms: ['consanguine sister', 'paternal sister', 'half sister', 'half sisters', 'step sister', 'step sisters', 'soteli behan', 'سوتیلی بہن', 'baap shariq behan', 'باپ شریک بہن'] },
+      { id: 'uterine_sibling', terms: ['uterine brother', 'uterine sister', 'uterine siblings', 'maa shariq bhai', 'maa shariq behan', 'ماں شریک بھائی', 'ماں شریک بہن', 'akhyafi', 'اخیافی'] },
+      { id: 'real_nephew', terms: ['nephew', 'nephews', 'bhatija', 'bhatije', 'brothers son', 'بھتیجا', 'بھتیجے'] },
+      { id: 'consanguine_nephew', terms: ['consanguine nephew', 'paternal nephew', 'half nephew', 'baap shariq bhatija', 'باپ شریک بھتیجا'] },
+      { id: 'real_paternal_uncle', terms: ['paternal uncle', 'full paternal uncle', 'uncle', 'uncles', 'chacha', 'taya', 'چچا', 'تایا'] },
+      { id: 'consanguine_paternal_uncle', terms: ['consanguine paternal uncle', 'half paternal uncle', 'consanguine uncle', 'baap shariq chacha', 'باپ شریک چچا'] },
+      { id: 'real_paternal_cousin', terms: ['paternal cousin', 'cousin', 'cousins', 'cousin brother', 'chacha zad', 'چچا زاد'] },
+      { id: 'consanguine_paternal_cousin', terms: ['consanguine cousin', 'half cousin', 'baap shariq chacha zad'] },
+      { id: 'daughters_son', terms: ['daughters son', 'daughter son', 'nawasa', 'nawase', 'نواسہ', 'نواسے'] },
+      { id: 'daughters_daughter', terms: ['daughters daughter', 'daughter daughter', 'nawasi', 'نواسی'] },
+      { id: 'sisters_son', terms: ['sisters son', 'sister son', 'bhanja', 'bhanje', 'بھانجا', 'بھانجے'] },
+      { id: 'sisters_daughter', terms: ['sisters daughter', 'sister daughter', 'niece', 'bhanji', 'بھانجی'] },
+      { id: 'brothers_daughter', terms: ['brothers daughter', 'brother daughter', 'bhatiji', 'بھتیجی'] },
+      { id: 'paternal_aunt', terms: ['paternal aunt', 'aunt', 'phuphi', 'phupho', 'پھوپھی'] },
+      { id: 'maternal_aunt', terms: ['maternal aunt', 'khala', 'خالہ'] },
+      { id: 'maternal_uncle', terms: ['maternal uncle', 'mamu', 'mamoon', 'mamun', 'ماموں'] },
+      { id: '__parents__', terms: ['walidain', 'parents', 'والدین', 'امی ابو'] }
+    ];
+    const SMART_NEG = ['no', 'not', 'nahi', 'nhi', 'nahin', 'نہیں', 'na', 'نہ', 'ni'];
+    const SMART_MULT = { lakh: 100000, lakhs: 100000, 'لاکھ': 100000, crore: 10000000, crores: 10000000, 'کروڑ': 10000000, hazar: 1000, 'ہزار': 1000, thousand: 1000, million: 1000000, 'ارب': 1000000000 };
+
+    function smartNormalize(text) {
+      let t = (text || '').toLowerCase();
+      t = t.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+      t = t.replace(/ي/g, 'ی').replace(/ك/g, 'ک').replace(/ة/g, 'ہ').replace(/ـ/g, '');
+      t = t.replace(/(\d),(?=\d)/g, '$1');
+      t = t.replace(/['’]/g, '');
+      t = t.replace(/[,،؛;]/g, ' § ');
+      t = t.replace(/(\d)\.(?=\d)/g, '$1\u0001');
+      t = t.replace(/[.,،؛;:!?()\[\]{}"«»\-–—]/g, ' ');
+      t = t.replace(/\u0001/g, '.');
+      return t.replace(/\s+/g, ' ').trim();
+    }
+    function smartQty(token) {
+      if (!token) return null;
+      if (/^\d+$/.test(token)) return parseInt(token, 10);
+      if (SMART_NUM_EN[token] != null) return SMART_NUM_EN[token];
+      if (SMART_NUM_RO[token] != null) return SMART_NUM_RO[token];
+      if (SMART_NUM_UR[token] != null) return SMART_NUM_UR[token];
+      return null;
+    }
+
+    const SMART_FILLER = ['hai', 'hain', 'he', 'ہے', 'ہیں', 'tha', 'thi', 'تھا', 'تھی', 'zinda', 'زندہ', 'alive', 'maujood', 'majood', 'mojud', 'موجود', 'dono', 'دونوں', 'both', 'bhi', 'بھی'];
+    function smartScanHeirs(tokens) {
+      const phrases = [];
+      SMART_TERMS.forEach(entry => entry.terms.forEach(term => {
+        phrases.push({ id: entry.id, parts: term.split(' ') });
+      }));
+      phrases.sort((a, b) => (b.parts.length - a.parts.length) || (b.parts.join(' ').length - a.parts.join(' ').length));
+      const TERM_TOKENS = new Set();
+      phrases.forEach(p => p.parts.forEach(w => TERM_TOKENS.add(w)));
+      const found = {};
+      const absent = [];
+      const stepUsed = [];
+      const used = new Array(tokens.length).fill(false);
+      for (let i = 0; i < tokens.length; i++) {
+        if (used[i] || tokens[i] === '§') continue;
+        for (const ph of phrases) {
+          const n = ph.parts.length;
+          if (i + n > tokens.length) continue;
+          let ok = true;
+          for (let j = 0; j < n; j++) { if (used[i + j] || tokens[i + j] !== ph.parts[j]) { ok = false; break; } }
+          if (!ok) continue;
+          let qty = 1, qtyIdx = -1;
+          if (i > 0 && !used[i - 1] && tokens[i - 1] !== '§') { const q = smartQty(tokens[i - 1]); if (q != null) { qty = q; qtyIdx = i - 1; } }
+          // Trailing quantity binds to THIS heir ("bete 2, beti 1").
+          if (qtyIdx < 0 && i + n < tokens.length && !used[i + n] && tokens[i + n] !== '§') {
+            const q = smartQty(tokens[i + n]);
+            if (q != null) { qty = q; qtyIdx = i + n; }
+          }
+          // Negation before the term ("no wife"), never across a clause break.
+          let neg = false, negIdx = -1;
+          for (let k = i - 1; k >= Math.max(0, i - 2); k--) {
+            if (tokens[k] === '§') break;
+            if (!used[k] && SMART_NEG.includes(tokens[k])) { neg = true; negIdx = k; }
+          }
+          // Negation as the rest of the clause ("beta nahi", "bete nahi hain"):
+          // everything left in this clause must be negation/filler words only,
+          // so "sons, no debt" and "sons not daughters" can never misfire.
+          if (!neg) {
+            let r = i + n, negSeen = -1, pure = true, steps = 0;
+            while (r < tokens.length && tokens[r] !== '§') {
+              if (r === qtyIdx) { r++; continue; }
+              // A negation already claimed by a fellow heir in this same
+              // clause still counts: the negation is shared, not consumed.
+              if (SMART_NEG.includes(tokens[r])) { if (negSeen < 0) negSeen = r; r++; steps++; continue; }
+              if (used[r]) { r++; continue; }
+              if (/^\d/.test(tokens[r]) || smartQty(tokens[r]) != null) break;
+              if (SMART_FILLER.includes(tokens[r])) { r++; steps++; continue; }
+              // A fellow heir named before the negation shares it
+              // ("walid walida majood nhi" negates both parents).
+              if (negSeen < 0 && TERM_TOKENS.has(tokens[r])) { r++; steps++; continue; }
+              // Distributed negation ("walid nhi walida bhi nhi"): a second
+              // negation later in the clause confirms the first one binds.
+              if (negSeen >= 0) {
+                let moreNeg = false;
+                for (let k = r + 1; k < tokens.length && tokens[k] !== '§'; k++) { if (SMART_NEG.includes(tokens[k])) { moreNeg = true; break; } }
+                if (moreNeg) break;
+              }
+              pure = false; break;
+            }
+            if (pure && negSeen >= 0 && steps > 0) { neg = true; negIdx = negSeen; }
+          }
+          for (let j = 0; j < n; j++) used[i + j] = true;
+          if (qtyIdx >= 0) used[qtyIdx] = true;
+          if (neg && negIdx >= 0) used[negIdx] = true;
+          if (ph.id === '__parents__') {
+            if (neg) { if (!absent.includes('father')) absent.push('father'); if (!absent.includes('mother')) absent.push('mother'); }
+            else { found.father = (found.father || 0) + 1; found.mother = (found.mother || 0) + 1; }
+          } else if (neg) {
+            if (!absent.includes(ph.id)) absent.push(ph.id);
+          } else {
+            found[ph.id] = (found[ph.id] || 0) + qty;
+            const w0 = ph.parts.join(' ');
+            if ((w0.indexOf('step') === 0 || w0.indexOf('sotel') === 0) && !stepUsed.includes(ph.id)) stepUsed.push(ph.id);
+          }
+          break;
+        }
+      }
+      return { found, absent, used, stepUsed };
+    }
+
+    function smartMoneyScan(tokens, used) {
+      const numAt = i => {
+        const t = tokens[i];
+        if (/^\d+(?:\.\d+)?$/.test(t)) return parseFloat(t);
+        const q = smartQty(t);
+        return q != null ? q : null;
+      };
+      const claim = idxs => idxs.forEach(x => { if (x != null && x >= 0) used[x] = true; });
+      const land = {};
+      for (let i = 0; i < tokens.length - 1; i++) {
+        if (used[i]) continue;
+        const v = numAt(i);
+        if (v == null || used[i + 1]) continue;
+        const unit = tokens[i + 1];
+        if (['marla', 'marlas', 'مرلہ', 'مرلے'].includes(unit)) { land.marlas = v; claim([i, i + 1]); }
+        else if (['kanal', 'kanals', 'کنال'].includes(unit)) { land.kanals = v; claim([i, i + 1]); }
+        else if (['acre', 'acres', 'ایکڑ'].includes(unit)) { land.acres = v; claim([i, i + 1]); }
+      }
+      const DEBT_W = ['qarz', 'قرض', 'debt', 'loan', 'ادھار'];
+      const WAS_W = ['wasiyyat', 'wasiyyah', 'وصیت', 'bequest'];
+      const FUN_W = ['janaza', 'جنازہ', 'kafan', 'کفن', 'tadfeen', 'تدفین', 'funeral'];
+      const EST_TOT_W = ['kul', 'کل', 'total', 'maliyat', 'مالیت', 'maal', 'مال'];
+      const EST_PART_W = ['cash', 'رقم', 'raqam', 'jaidad', 'جائیداد', 'estate', 'assets', 'property'];
+      // Nearest label, scanning outward; another unconsumed NUMBER is a barrier,
+      // so a label can never steal an amount across a different amount.
+      const nearest = (from, to, words) => {
+        let best = 99, bestIdx = -1, bestSide = 1;
+        for (let k = from - 1; k >= 0; k--) {
+          if (used[k]) continue;
+          if (tokens[k] === '§' || numAt(k) != null) break;
+          if (words.includes(tokens[k])) { if (from - k < best) { best = from - k; bestIdx = k; bestSide = 0; } break; }
+        }
+        for (let k = to + 1; k < tokens.length; k++) {
+          if (used[k]) continue;
+          if (tokens[k] === '§' || numAt(k) != null) break;
+          if (words.includes(tokens[k])) { const d = k - to; if (d < best) { best = d; bestIdx = k; bestSide = 1; } break; }
+        }
+        return { d: best, idx: bestIdx, side: bestSide };
+      };
+      let debt = null, wasiyyat = null, wasiyyatPct = null, funeral = null;
+      let estateTotal = null, estateParts = null, estateFallback = null;
+      for (let i = 0; i < tokens.length; i++) {
+        if (used[i]) continue;
+        let v = numAt(i), pct = false;
+        if (v == null && /^\d+(?:\.\d+)?%$/.test(tokens[i])) { v = parseFloat(tokens[i]); pct = true; }
+        if (v == null) continue;
+        let spanEnd = i, multIdx = -1;
+        if (!pct && i + 1 < tokens.length && !used[i + 1] && SMART_MULT[tokens[i + 1]]) { v = v * SMART_MULT[tokens[i + 1]]; multIdx = i + 1; spanEnd = i + 1; }
+        if (!pct && multIdx < 0 && !/^\d/.test(tokens[i])) continue;
+        if (!pct && (tokens[i + 1] === '%' || tokens[i + 1] === 'فیصد' || tokens[i + 1] === 'percent')) { pct = true; spanEnd = i + 1; }
+        const dDebt = nearest(i, spanEnd, DEBT_W), dWas = nearest(i, spanEnd, WAS_W), dFun = nearest(i, spanEnd, FUN_W), dTot = nearest(i, spanEnd, EST_TOT_W), dPart = nearest(i, spanEnd, EST_PART_W);
+        const cats = [
+          { kind: 'debt', d: dDebt.d, idx: dDebt.idx, side: dDebt.side },
+          { kind: 'wasiyyat', d: dWas.d, idx: dWas.idx, side: dWas.side },
+          { kind: 'funeral', d: dFun.d, idx: dFun.idx, side: dFun.side },
+          { kind: 'estateTotal', d: dTot.d, idx: dTot.idx, side: dTot.side },
+          { kind: 'estatePart', d: dPart.d, idx: dPart.idx, side: dPart.side }
+        ].filter(c => c.d <= 3).sort((a, b) => (a.d - b.d) || (a.side - b.side));
+        if (!cats.length) {
+          if (!pct && (multIdx >= 0 || v >= 10000)) { if (estateFallback == null || v > estateFallback) estateFallback = v; claim([i, multIdx]); }
+          continue;
+        }
+        // Repeated labels ACCUMULATE (two debts are added, never dropped);
+        // labelled estate parts are summed, an explicit total wins over parts.
+        const c = cats[0];
+        if (c.kind === 'debt' && !pct) { debt = (debt || 0) + v; claim([i, multIdx]); }
+        else if (c.kind === 'wasiyyat') {
+          if (pct) { if (wasiyyatPct == null) wasiyyatPct = parseFloat(tokens[i]); }
+          else wasiyyat = (wasiyyat || 0) + v;
+          claim([i, multIdx]);
+        }
+        else if (c.kind === 'funeral' && !pct) { funeral = (funeral || 0) + v; claim([i, multIdx]); }
+        else if (c.kind === 'estateTotal' && !pct) { if (estateTotal == null || v > estateTotal) estateTotal = v; claim([i, multIdx]); }
+        else if (c.kind === 'estatePart' && !pct) { estateParts = (estateParts || 0) + v; claim([i, multIdx]); }
+      }
+      const estate = estateTotal != null ? estateTotal : ((estateParts == null && estateFallback == null) ? null : (estateParts || 0) + (estateFallback || 0));
+      return { land, debt, wasiyyat, wasiyyatPct, estate, funeral };
+    }
+
+    function parseSmartCase() {
+      const en = currentLang === 'en';
+      const inputEl = document.getElementById('smartInputText');
+      const raw0 = inputEl ? (inputEl.value || '') : '';
+      if (!raw0.trim()) {
+        showToast(en ? 'Please write the case in the text box first' : 'براہِ کرم پہلے ٹیکسٹ باکس میں مسئلہ لکھیں', '⚠️');
+        return;
+      }
+      const tokens = smartNormalize(raw0).split(' ').filter(Boolean);
+      const scan = smartScanHeirs(tokens.slice());
+      const workTokens = tokens.slice();
+      scan.used.forEach((u, i) => { if (u) workTokens[i] = ''; });
+      const usedFlags = workTokens.map(t => t === '');
+      const money = smartMoneyScan(workTokens, usedFlags);
+
+      const parsed = {};
+      Object.keys(heirCounts).forEach(k => { parsed[k] = 0; });
+      Object.keys(scan.found).forEach(id => { parsed[id] = scan.found[id]; });
+
+      const notes = [];
+      const hasTok = arr => tokens.some(t => arr.includes(t));
+      let gender = deceasedGender;
+      const femaleMark = (hasTok(['aurat', 'عورت', 'khatoon', 'خاتون', 'female', 'woman']) && hasTok(['mayyat', 'میت', 'marhooma', 'مرحومہ', 'deceased'])) || hasTok(['marhooma', 'مرحومہ']);
+      const maleMark = (hasTok(['mard', 'مرد', 'aadmi', 'آدمی', 'male', 'man']) && hasTok(['mayyat', 'میت', 'marhoom', 'مرحوم', 'deceased'])) || false;
+      if (femaleMark) gender = 'female';
+      else if (maleMark) gender = 'male';
+      else if (parsed.husband > 0 && parsed.wife === 0) gender = 'female';
+      else if (parsed.wife > 0 && parsed.husband === 0) gender = 'male';
+      const excluded = [];
+      if (gender === 'male' && parsed.husband > 0) {
+        excluded.push({ id: 'husband', reason: en ? 'The deceased is male, so a husband cannot inherit' : 'میت مرد ہے، اس لیے شوہر وارث نہیں بن سکتا' });
+        parsed.husband = 0;
+      }
+      if (gender === 'female' && parsed.wife > 0) {
+        excluded.push({ id: 'wife', reason: en ? 'The deceased is female, so a wife cannot inherit' : 'میت خاتون ہے، اس لیے بیوی وارث نہیں بن سکتی' });
+        parsed.wife = 0;
+      }
+      Object.keys(parsed).forEach(id => {
+        if (parsed[id] > 0) {
+          const meta = getHeirMeta(id);
+          if (meta && meta.max && parsed[id] > meta.max) {
+            notes.push((en ? 'Count adjusted: ' : 'تعداد شرعی حد پر لائی گئی: ') + getHeirDisplayName(id) + ' ' + parsed[id] + ' → ' + meta.max);
+            parsed[id] = meta.max;
+          }
+        }
+      });
+      const info = getHeirBlockInfo(parsed);
+      Object.keys(parsed).forEach(id => {
+        if (parsed[id] > 0 && info[id]) {
+          excluded.push({ id, reason: en ? info[id].en : info[id].ur });
+          parsed[id] = 0;
+        }
+      });
+      scan.absent.forEach(id => {
+        notes.push((en ? 'Marked absent by you: ' : 'آپ کے بیان کے مطابق موجود نہیں: ') + getHeirDisplayName(id));
+      });
+      (scan.stepUsed || []).forEach(id => {
+        notes.push((en ? 'Note: step wording read as paternal half sibling: ' : 'نوٹ: \'سوتیلا\' سے مراد علاتی (باپ شریک) لیا گیا ہے: ') + getHeirDisplayName(id));
+      });
+
+      const appliedIds = Object.keys(parsed).filter(id => parsed[id] > 0);
+      const landFound = (money.land.marlas != null || money.land.kanals != null || money.land.acres != null);
+      if (!appliedIds.length && !scan.absent.length && money.estate == null && money.debt == null && money.funeral == null && money.wasiyyat == null && money.wasiyyatPct == null && !landFound) {
+        showToast(en ? 'No heir or amount could be understood. Please write names like: 1 wife, 2 sons, father, mother' : 'کوئی وارث یا رقم سمجھ نہیں آئی۔ مثال کے انداز میں لکھیں: 1 بیوہ، 2 بیٹے، والد، والدہ', '⚠️');
+        return;
+      }
+
+      Object.keys(heirCounts).forEach(k => { heirCounts[k] = 0; });
+      if (gender !== deceasedGender) setDeceasedGender(gender);
+      Object.keys(parsed).forEach(id => { heirCounts[id] = parsed[id]; });
+      const setVal = (elId, v) => { const el = document.getElementById(elId); if (el) el.value = (v == null ? '' : v); };
+      // Fields the new text does not mention are reset, so nothing stale
+      // from a previous case silently changes this distribution.
+      setVal('grossEstateInput', money.estate);
+      setVal('debtInput', money.debt == null ? 0 : money.debt);
+      setVal('funeralExpenseInput', money.funeral == null ? 0 : money.funeral);
+      let wasiyyatApplied = money.wasiyyat;
+      if (wasiyyatApplied == null && money.wasiyyatPct != null) {
+        if (money.estate != null) {
+          wasiyyatApplied = Math.round((money.estate - (money.debt || 0) - (money.funeral || 0)) * money.wasiyyatPct / 100);
+          notes.push((en ? 'Wasiyyat calculated as ' : 'وصیت کی رقم فیصد سے نکالی گئی: ') + money.wasiyyatPct + '% = ' + wasiyyatApplied.toLocaleString('en-US'));
+        } else {
+          notes.push(en ? 'Wasiyyat percentage could not be applied because no total estate was written' : 'وصیت کی فیصد لاگو نہیں ہو سکی کیونکہ کل مال نہیں لکھا گیا');
+        }
+      }
+      setVal('wasiyyahInput', wasiyyatApplied == null ? 0 : wasiyyatApplied);
+      setVal('landMarlas', money.land.marlas == null ? 0 : money.land.marlas);
+      setVal('landKanals', money.land.kanals == null ? 0 : money.land.kanals);
+      setVal('landAcres', money.land.acres == null ? 0 : money.land.acres);
+      setVal('landSqFt', 0);
+
+      renderHeirsGrid();
+      calculateMirath();
+
+      const appliedTxt = appliedIds.map(id => getHeirDisplayName(id) + ' ×' + parsed[id]).join('، ');
+      let reportHtml = '<strong>' + (en ? 'Auto-filled: ' : 'خودکار طور پر بھر دیا گیا: ') + '</strong>' + (appliedTxt || (scan.absent.length ? (en ? '(no heirs applied)' : '(کوئی وارث شامل نہیں)') : (en ? '(amounts only)' : '(صرف رقوم)')));
+      const moneyBits = [];
+      if (money.estate != null) moneyBits.push((en ? 'Estate ' : 'کل ترکہ ') + money.estate.toLocaleString('en-US'));
+      if (money.debt != null) moneyBits.push((en ? 'Debt ' : 'قرض ') + money.debt.toLocaleString('en-US'));
+      if (money.funeral != null) moneyBits.push((en ? 'Funeral ' : 'تجہیز و تکفین ') + money.funeral.toLocaleString('en-US'));
+      if (wasiyyatApplied != null) moneyBits.push((en ? 'Wasiyyat ' : 'وصیت ') + wasiyyatApplied.toLocaleString('en-US'));
+      if (landFound) moneyBits.push((en ? 'Land: ' : 'زمین: ') + [money.land.acres != null ? money.land.acres + (en ? ' acre' : ' ایکڑ') : '', money.land.kanals != null ? money.land.kanals + (en ? ' kanal' : ' کنال') : '', money.land.marlas != null ? money.land.marlas + (en ? ' marla' : ' مرلہ') : ''].filter(Boolean).join(' '));
+      if (moneyBits.length) reportHtml += '<br/>' + moneyBits.join('، ');
+      excluded.forEach(x => {
+        reportHtml += '<br/><span class="smart-excl"><strong>' + (en ? 'Not made an heir: ' : 'وارث نہیں بنایا گیا: ') + '</strong>' + getHeirDisplayName(x.id) + '، ' + x.reason + '</span>';
+      });
+      notes.forEach(n => { reportHtml += '<br/>' + n; });
+      const reportEl = document.getElementById('smartReport');
+      if (reportEl) { reportEl.innerHTML = reportHtml; reportEl.classList.remove('hidden'); }
+      showToast(en ? 'Form auto-filled by the smart parser' : 'اسمارٹ آٹو فلر سے فارم بھر دیا گیا!', '🤖');
+    }
+
+    // ==================== ITEMIZED ASSETS ====================
+    function addAssetItem() {
+      const nameEl = document.getElementById('newAssetName');
+      const valEl = document.getElementById('newAssetValue');
+      const name = (nameEl.value || '').trim();
+      const val = parseFloat(valEl.value) || 0;
+      if (!name || val <= 0) {
+        showToast('اثاثے کا نام اور درست مالیت درج کریں', '⚠️');
+        return;
+      }
+      customAssets.push({ id: Date.now(), name, val });
+      nameEl.value = '';
+      valEl.value = '';
+      renderAssetItems();
+    }
+
+    function removeAssetItem(id) {
+      customAssets = customAssets.filter(x => x.id !== id);
+      renderAssetItems();
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    function renderAssetItems() {
+      const box = document.getElementById('assetListContainer');
+      if (customAssets.length === 0) {
+        box.innerHTML = '';
+        return;
+      }
+      box.innerHTML = customAssets.map(a => `
+        <div class="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-slate-200">
+          <span class="font-medium text-slate-800">${escapeHtml(a.name)}</span>
+          <div class="flex items-center gap-3">
+            <span class="font-mono-num font-bold text-emerald-800">${formatNum(a.val)}</span>
+            <button type="button" onclick="removeAssetItem(${a.id})" class="text-rose-600 hover:text-rose-800 font-bold">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function syncAssetsToGross() {
+      if (customAssets.length === 0) {
+        showToast('پہلے کم از کم ایک اثاثہ فہرست میں شامل کریں', '⚠️');
+        return;
+      }
+      const sum = customAssets.reduce((acc, x) => acc + x.val, 0);
+      document.getElementById('grossEstateInput').value = sum;
+      calculateMirath();
+      showToast('تمام اثاثہ جات کی مالیت کل ترکہ میں شامل کر دی گئی ہے', '✅');
+    }
+
+    // ==================== ZAKAT & USHR ENGINE ====================
+    function onZakatUnitChange() {
+      const unitSel = document.getElementById('zakatWeightUnit');
+      const unit = unitSel.value;
+      const prevUnit = unitSel.dataset.prevUnit || 'tola';
+      const GRAMS_PER = { tola: 11.6638, gram: 1, ounce: 31.1035 };
+      if (prevUnit !== unit && GRAMS_PER[prevUnit] && GRAMS_PER[unit]) {
+        const wFactor = GRAMS_PER[prevUnit] / GRAMS_PER[unit];
+        const rFactor = GRAMS_PER[unit] / GRAMS_PER[prevUnit];
+        ['zakatGold24', 'zakatSilverWeight'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el && el.value !== '') el.value = Math.round((parseFloat(el.value) || 0) * wFactor * 10000) / 10000;
+        });
+        ['goldRateInput', 'silverRateInput'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el && el.value !== '') el.value = Math.round((parseFloat(el.value) || 0) * rFactor);
+        });
+      }
+      unitSel.dataset.prevUnit = unit;
+      const gLabel = document.getElementById('goldRateLabel');
+      const sLabel = document.getElementById('silverRateLabel');
+      if (unit === 'tola') {
+        gLabel.textContent = 'سونا (24K): فی تولہ قیمت';
+        sLabel.textContent = 'چاندی: فی تولہ قیمت';
+      } else if (unit === 'gram') {
+        gLabel.textContent = 'سونا (24K): فی گرام قیمت';
+        sLabel.textContent = 'چاندی: فی گرام قیمت';
+      } else {
+        gLabel.textContent = 'سونا (24K): فی اونس قیمت';
+        sLabel.textContent = 'چاندی: فی اونس قیمت';
+      }
+      calculateZakat();
+    }
+
+    function applyCountryGoldPreset(code) {
+      document.getElementById('zakatWeightUnit').value = 'tola';
+      onZakatUnitChange();
+      if (code === 'PKR') {
+        document.getElementById('goldRateInput').value = 285000;
+        document.getElementById('silverRateInput').value = 3300;
+      } else if (code === 'INR') {
+        document.getElementById('goldRateInput').value = 92000;
+        document.getElementById('silverRateInput').value = 1100;
+      } else if (code === 'SAR') {
+        document.getElementById('goldRateInput').value = 3850;
+        document.getElementById('silverRateInput').value = 46;
+      } else if (code === 'USD') {
+        document.getElementById('goldRateInput').value = 1020;
+        document.getElementById('silverRateInput').value = 12.5;
+      }
+      calculateZakat();
+      showToast(`${code} کے تخمینی مارکیٹ ریٹس لوڈ کر دیے گئے ہیں`, '💰');
+    }
+
+    function resetZakatForm() {
+      ['zakatGold24', 'zakatSilverWeight', 'zakatGoldDirectVal', 'zakatCashHand', 'zakatBankBalance',
+       'zakatCommitteeBC', 'zakatLoanGiven', 'zakatStockGoods', 'zakatTradingPlots', 'zakatPartnership',
+       'zakatRentalSaved', 'zakatDebtOwed', 'zakatCommitteePayable', 'zakatBillsSalaries', 'zakatPastUnpaid', 'ushrCropValue'
+      ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = 0;
+      });
+      calculateZakat();
+      showToast('زکوٰۃ فارم ری سیٹ کر دیا گیا ہے', '🔄');
+    }
+
+    function calculateZakat() {
+      const unit = document.getElementById('zakatWeightUnit').value;
+      const goldRate = Math.max(0, parseFloat(document.getElementById('goldRateInput').value) || 0);
+      const silverRate = Math.max(0, parseFloat(document.getElementById('silverRateInput').value) || 0);
+      const basis = document.getElementById('nisabBasisSelect').value;
+
+      const goldNisabUnits = unit === 'tola' ? 7.5 : (unit === 'gram' ? 87.48 : 2.8125);
+      const silverNisabUnits = unit === 'tola' ? 52.5 : (unit === 'gram' ? 612.36 : 19.6875);
+
+      const goldNisabValue = goldNisabUnits * goldRate;
+      const silverNisabValue = silverNisabUnits * silverRate;
+
+      const goldW = Math.max(0, parseFloat(document.getElementById('zakatGold24').value) || 0);
+      const karatFactor = parseFloat(document.getElementById('zakatGoldKarat').value) || 1;
+      const silverW = Math.max(0, parseFloat(document.getElementById('zakatSilverWeight').value) || 0);
+      const directMetalVal = Math.max(0, parseFloat(document.getElementById('zakatGoldDirectVal').value) || 0);
+
+      const goldVal = goldW * karatFactor * goldRate;
+      const silverVal = silverW * silverRate;
+      const totalMetalVal = goldVal + silverVal + directMetalVal;
+
+      const cashVal =
+        Math.max(0, parseFloat(document.getElementById('zakatCashHand').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatBankBalance').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatCommitteeBC').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatLoanGiven').value) || 0);
+
+      const tradeVal =
+        Math.max(0, parseFloat(document.getElementById('zakatStockGoods').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatTradingPlots').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatPartnership').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatRentalSaved').value) || 0);
+
+      const totalAssets = totalMetalVal + cashVal + tradeVal;
+
+      const totalLiabilities =
+        Math.max(0, parseFloat(document.getElementById('zakatDebtOwed').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatCommitteePayable').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatBillsSalaries').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatPastUnpaid').value) || 0);
+
+      const netZakatable = Math.max(0, totalAssets - totalLiabilities);
+
+      // Determine applicable Nisab threshold
+      const onlyPureGold = (goldW > 0 && silverW === 0 && directMetalVal === 0 && cashVal === 0 && tradeVal === 0);
+      let activeNisab = silverNisabValue;
+      let activeNisabLabel = 'چاندی کا نصاب (52.5 تولہ)';
+      if (basis === 'gold_only' || (basis === 'hanafi_auto' && onlyPureGold)) {
+        activeNisab = goldNisabValue;
+        activeNisabLabel = 'سونے کا نصاب (7.5 تولہ)';
+      }
+
+      const nisabUnitEl = document.getElementById('zakatWeightUnit');
+      const nisabUnit = nisabUnitEl ? nisabUnitEl.value : 'tola';
+      const goldWtxt = nisabUnit === 'gram' ? '87.48 گرام' : (nisabUnit === 'ounce' ? '2.8125 اونس' : '7.5 تولہ');
+      const silverWtxt = nisabUnit === 'gram' ? '612.36 گرام' : (nisabUnit === 'ounce' ? '19.687 اونس' : '52.5 تولہ');
+      document.getElementById('nisabThresholdsBar').innerHTML =
+        `سونے کا نصاب (${goldWtxt}): <strong>${formatNum(goldNisabValue, 0)}</strong> • چاندی کا نصاب (${silverWtxt}): <strong>${formatNum(silverNisabValue, 0)}</strong> • لاگو معیار: <strong>${activeNisabLabel}</strong>`;
+
+      const isZakatDue = netZakatable >= activeNisab && activeNisab > 0;
+      const zakatAmount = isZakatDue ? (netZakatable * 0.025) : 0;
+
+      // Ushr calculation
+      const ushrCropEl = document.getElementById('ushrCropValue');
+      const ushrTypeEl = document.getElementById('ushrIrrigationType');
+      const cropVal = ushrCropEl ? Math.max(0, parseFloat(ushrCropEl.value) || 0) : 0;
+      const ushrRate = ushrTypeEl ? (parseFloat(ushrTypeEl.value) || 0.10) : 0.10;
+      const ushrAmount = cropVal * ushrRate;
+      const ushrBadge = document.getElementById('ushrOutputBadge');
+      if (ushrBadge) ushrBadge.textContent =
+        `واجب الادا عشر (${(ushrRate * 100).toFixed(1)}%): ${formatNum(ushrAmount, 0)}`;
+
+      document.getElementById('zakatTotalAssetsOut').textContent = formatNum(totalAssets, 0);
+      document.getElementById('zakatTotalLiabOut').textContent = formatNum(totalLiabilities, 0);
+      document.getElementById('zakatNetWorthOut').textContent = formatNum(netZakatable, 0);
+      document.getElementById('zakatPayableOut').textContent = formatNum(zakatAmount + ushrAmount, 0);
+
+      document.getElementById('zakatStatusText').textContent = isZakatDue
+        ? `✅ آپ کا خالص مال نصاب (${formatNum(activeNisab, 0)}) سے زائد ہے، لہٰذا ڈھائی فیصد (2.5%) زکوٰۃ فرض ہے: ${formatNum(zakatAmount, 0)} ${ushrAmount > 0 ? ` (مع عشر: ${formatNum(zakatAmount + ushrAmount, 0)})` : ''}`
+        : `ℹ️ آپ کا خالص قابلِ زکوٰۃ مال (${formatNum(netZakatable, 0)}) مقررہ نصاب (${formatNum(activeNisab, 0)}) سے کم ہے، لہٰذا زکوٰۃ واجب نہیں۔`;
+    }
+
+    // ==================== MUNASAKHA (MULTI-STAGE) ENGINE ====================
+    let munasakhaAutoShare = null;
+    function populateMunasakhaDropdown(activeHeirs, netEstate) {
+      const sel = document.getElementById('munasakhaHeirSelect');
+      if (!sel) return;
+      const shareEl = document.getElementById('munasakhaStage1Share');
+      const prevOpt = (sel.options && sel.selectedIndex >= 0) ? sel.options[sel.selectedIndex] : null;
+      const prevHid = prevOpt && prevOpt.dataset ? prevOpt.dataset.hid : null;
+      if (activeHeirs.length === 0) {
+        sel.innerHTML = `<option value="0">کوئی وارث منتخب نہیں (دستی رقم درج کریں)</option>`;
+        return;
+      }
+      sel.innerHTML = activeHeirs.map(h => {
+        const perPerson = Math.round((netEstate * h.shareRatio) / h.count);
+        return `<option value="${perPerson}" data-hid="${h.id}">${getHeirDisplayName(h.id)}: فی کس حصہ: ${formatNum(perPerson, 0)}</option>`;
+      }).join('');
+      let idx = 0;
+      if (prevHid) { const f = activeHeirs.findIndex(h => h.id === prevHid); if (f >= 0) idx = f; }
+      sel.selectedIndex = idx;
+      // Keep the displayed heir and the share amount in sync, but never
+      // overwrite an amount the user typed by hand.
+      const newVal = parseFloat(sel.value) || 0;
+      if (shareEl && (shareEl.value === '' || munasakhaAutoShare === null || (parseFloat(shareEl.value) || 0) === munasakhaAutoShare)) {
+        shareEl.value = newVal;
+        munasakhaAutoShare = newVal;
+      }
+    }
+
+    function onMunasakhaHeirChange() {
+      const val = parseFloat(document.getElementById('munasakhaHeirSelect').value) || 0;
+      document.getElementById('munasakhaStage1Share').value = val;
+      munasakhaAutoShare = val;
+      calculateMunasakha();
+    }
+
+    function sendToMunasakha() {
+      try {
+        if (window.__munasakhaTransfer) sessionStorage.setItem('munasakhaTransfer', JSON.stringify(window.__munasakhaTransfer));
+      } catch (e) {}
+      location.href = 'munasakha.html';
+    }
+
+    function calculateMunasakha() {
+      const stage1Share = Math.max(0, parseFloat(document.getElementById('munasakhaStage1Share').value) || 0);
+      const g2 = document.getElementById('munasakhaGender2').value;
+      const m2Counts = {};
+      Object.keys(heirCounts).forEach(k => { m2Counts[k] = 0; });
+
+      const sp = parseInt(document.getElementById('m2Spouse').value, 10) || 0;
+      if (g2 === 'male') m2Counts.wife = Math.min(4, sp);
+      else m2Counts.husband = Math.min(1, sp);
+
+      m2Counts.son = Math.max(0, parseInt(document.getElementById('m2Sons').value, 10) || 0);
+      m2Counts.daughter = Math.max(0, parseInt(document.getElementById('m2Daughters').value, 10) || 0);
+      m2Counts.father = Math.min(1, Math.max(0, parseInt(document.getElementById('m2Father').value, 10) || 0));
+      m2Counts.mother = Math.min(1, Math.max(0, parseInt(document.getElementById('m2Mother').value, 10) || 0));
+      m2Counts.real_brother = Math.max(0, parseInt(document.getElementById('m2Brothers').value, 10) || 0);
+
+      const res2 = solveHanafiMirath(m2Counts);
+      const box = document.getElementById('munasakhaOutputContainer');
+      if (res2.activeHeirs.length === 0) {
+        box.innerHTML = `<div class="p-4 text-center text-slate-500">میتِ ثانی کے ورثاء کی تعداد درج کریں۔</div>`;
+        return;
+      }
+
+      const rows = res2.activeHeirs.map(h => {
+        const tot = stage1Share * h.shareRatio;
+        const per = tot / h.count;
+        return `
+          <tr class="border-b border-slate-200">
+            <td class="py-2.5 px-3 font-bold">${getHeirDisplayName(h.id)}</td>
+            <td class="py-2.5 px-2 text-center font-mono-num">${h.count}</td>
+            <td class="py-2.5 px-2 text-center font-mono-num">${h.siham} / ${h.totalSiham}</td>
+            <td class="py-2.5 px-2 text-center font-mono-num">${(h.shareRatio * 100).toFixed(2)}%</td>
+            <td class="py-2.5 px-3 text-center font-mono-num">${formatNum(per, 0)}</td>
+            <td class="py-2.5 px-3 text-center font-mono-num font-bold text-emerald-900">${formatNum(tot, 0)}</td>
+          </tr>`;
+      }).join('');
+
+      box.innerHTML = `
+        <table class="w-full text-sm text-right">
+          <thead class="bg-emerald-900 text-white text-xs">
+            <tr>
+              <th class="py-2.5 px-3">میتِ ثانی کا وارث</th>
+              <th class="py-2.5 px-2 text-center">تعداد</th>
+              <th class="py-2.5 px-2 text-center">سہام</th>
+              <th class="py-2.5 px-2 text-center">فیصد</th>
+              <th class="py-2.5 px-3 text-center">فی کس رقم</th>
+              <th class="py-2.5 px-3 text-center">مجموعی رقم</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    // ==================== COPY & NAVIGATION ACTIONS ====================
+    function copyTextFallback(text, msg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(() => fallbackExecCopy(text, msg));
+      } else {
+        fallbackExecCopy(text, msg);
+      }
+    }
+
+    function fallbackExecCopy(text, msg) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      showToast(msg);
+    }
+
+    function copyMirathWhatsAppSummary() {
+      const res = solveHanafiMirath(heirCounts);
+      const net = document.getElementById('netEstateDisplay').textContent;
+      let lines = [`📜 *تقسیمِ میراث رپورٹ (فقہِ حنفی)*`, `قابلِ تقسیم ترکہ: ${net}`, `نوعیت: ${res.caseStatus}`, ``];
+      res.activeHeirs.forEach(h => {
+        lines.push(`• ${getHeirDisplayName(h.id)} (${h.count}): ${(h.shareRatio * 100).toFixed(2)}% [سہام ${h.siham}/${h.totalSiham}]`);
+      });
+      copyTextFallback(lines.join('\n'), 'واٹس ایپ خلاصہ کاپی ہو گیا!');
+    }
+
+    function copyZakatSummary() {
+      const net = document.getElementById('zakatNetWorthOut').textContent;
+      const due = document.getElementById('zakatPayableOut').textContent;
+      const text = `💰 *زکوٰۃ و عشر رپورٹ*\nخالص قابلِ زکوٰۃ مالیت: ${net}\nکل واجب الادا زکوٰۃ و عشر: ${due}`;
+      copyTextFallback(text, 'زکوٰۃ کا خلاصہ کاپی ہو گیا!');
+    }
+
+    function switchMainTab(tabId) {
+      const target = PAGE_MAP[tabId];
+      if (target) location.href = target;
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      const dict = I18N[lang] || I18N.ur;
+      const root = document.getElementById('htmlRoot');
+      root.setAttribute('dir', dict.dir);
+      root.setAttribute('lang', lang);
+
+      ['ur', 'ro', 'en', 'hi'].forEach(l => {
+        const btn = document.getElementById(`langBtn-${l}`);
+        if (btn) {
+          btn.className = (l === lang)
+            ? 'px-2.5 py-1 rounded-md bg-amber-500 text-slate-950 font-bold transition is-active'
+            : 'px-2.5 py-1 rounded-md bg-emerald-900/80 hover:bg-emerald-800 text-emerald-100 transition';
+          btn.setAttribute('aria-pressed', l === lang ? 'true' : 'false');
+        }
+      });
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (dict[k]) el.textContent = dict[k];
+      });
+
+      try { localStorage.setItem('calcLang', lang); } catch (e) {}
+      const langSel = document.getElementById('langSwitch');
+      if (langSel) langSel.value = lang;
+      if (document.getElementById('panel-mirath')) { renderHeirsGrid(); calculateMirath(); }
+      markUrduText();
+    }
+
+    // ==================== MULTI-PAGE NAVIGATION, LANGUAGE, USHR ====================
+    const PAGE_MAP = { home: 'index.html', mirath: 'mirath.html', zakat: 'zakat.html', ushr: 'ushr.html', munasakha: 'munasakha.html', guides: 'guides.html' };
+
+    function initLanguage() {
+      let saved = null;
+      try { saved = localStorage.getItem('calcLang'); } catch (e) {}
+      setLanguage(saved && I18N[saved] ? saved : 'ur');
+    }
+
+    function calculateUshr() {
+      const cropEl = document.getElementById('ushrCropValue');
+      const typeEl = document.getElementById('ushrIrrigationType');
+      if (!cropEl || !typeEl) return;
+      const cropVal = Math.max(0, parseFloat(cropEl.value) || 0);
+      const rate = parseFloat(typeEl.value) || 0.10;
+      const amount = cropVal * rate;
+      const badge = document.getElementById('ushrOutputBadge');
+      if (badge) badge.textContent = `واجب الادا عشر (${(rate * 100).toFixed(1)}%): ${formatNum(amount, 0)}`;
+      const total = document.getElementById('ushrTotalOut');
+      if (total) total.textContent = formatNum(amount, 0);
+    }
+
+    function applyMunasakhaTransfer() {
+      try {
+        const raw = sessionStorage.getItem('munasakhaTransfer');
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (data && Array.isArray(data.activeHeirs) && data.activeHeirs.length) {
+          populateMunasakhaDropdown(data.activeHeirs, data.netEstate || 0);
+        }
+      } catch (e) {}
+    }
+
+    // Urdu script text keeps the Nastaleeq font even in LTR languages,
+    // where the body font is Latin. In Urdu (RTL) the body already uses it.
+    function markUrduText() {
+      const root = document.getElementById('htmlRoot');
+      if (!root || root.getAttribute('dir') === 'rtl') return;
+      document.querySelectorAll('p, li, td, th, span, label, h2, h3, h4, option, button, a').forEach(el => {
+        if (el.children.length === 0 && /[\u0600-\u06FF]/.test(el.textContent || '')) el.classList.add('urdu-text');
+      });
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initLanguage();
+      if (document.getElementById('panel-mirath')) { renderHeirsGrid(); calculateMirath(); }
+      if (document.getElementById('panel-zakat')) calculateZakat();
+      if (document.getElementById('panel-ushr')) calculateUshr();
+      if (document.getElementById('panel-munasakha')) { applyMunasakhaTransfer(); calculateMunasakha(); }
+      markUrduText();
+    });
+  </script>
+</body>
+</html>
