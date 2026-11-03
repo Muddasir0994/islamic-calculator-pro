@@ -8,7 +8,6 @@
       that were never compiled into the Tailwind build above. */
 .mt-0\.5{margin-top:.125rem}
 .leading-snug{line-height:1.375}
-.text-red-600{color:#dc2626}
 
 /* 2. Safety net: no stray element may force horizontal page scroll. */
 body{overflow-x:hidden;overflow-x:clip}
@@ -27,7 +26,6 @@ body{overflow-x:hidden;overflow-x:clip}
 
 /* 5. Heir-card label column may shrink (long English/Urdu names) so the
       +/- stepper is never pushed out of the card. */
-#heirsGridContainer .pr-1{min-width:0}
 
 /* 6. Long asset names wrap instead of pushing the remove button out. */
 #assetListContainer>div>span{min-width:0;overflow-wrap:anywhere}
@@ -46,4 +44,236 @@ body{overflow-x:hidden;overflow-x:clip}
 @media print{
   /* 10. Table minimum widths are for screens only; let print fit the page. */
   #mirathResultTable,#hamlComparisonTable table,#munasakhaOutputContainer table{min-width:0}
+}
+
+/* =====================================================================
+   iOS DESIGN SYSTEM (Cycle 1, 2026-11-03)
+   Apple HIG pass: clarity, deference, depth. Appended AFTER the compiled
+   Tailwind output and the responsive-fix block, so these rules win ties.
+   Runtime-managed controls (tabs, gender, language) are styled through ID
+   and class-substring selectors because JS rewrites their class attribute.
+   ===================================================================== */
+
+/* ---------- Foundations: page surface, type, width ---------- */
+body.bg-slate-50{background-color:#F2F2F7;color:#1C1C1E;font-size:17px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+#htmlRoot[dir="ltr"] body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Inter,system-ui,"Segoe UI",sans-serif}
+#htmlRoot[dir="rtl"] body{font-family:'Jameel Noori Nastaleeq','Noto Nastaliq Urdu',-apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif}
+.max-w-7xl{max-width:70rem}
+.font-mono-num{font-variant-numeric:tabular-nums}
+::selection{background:rgba(4,120,87,.18)}
+.overflow-x-auto{scrollbar-width:thin}
+button{cursor:pointer;transition:transform .15s ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid rgba(4,120,87,.55);outline-offset:2px}
+footer.bg-emerald-950{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom,0px))}
+
+/* ---------- Hero header: softer depth, large-title type ---------- */
+header.emerald-gradient{background:linear-gradient(160deg,#065F46 0%,#047857 55%,#0F766E 100%);box-shadow:0 12px 32px -12px rgba(6,78,59,.45)}
+header h1[class]{font-size:clamp(1.75rem,4.6vw,2.7rem);font-weight:800}
+#htmlRoot[dir="ltr"] header h1{line-height:1.12;letter-spacing:-.02em}
+.gold-badge.gold-badge{background:#FEF3C7;border:1px solid rgba(217,119,6,.35);box-shadow:0 1px 2px rgba(0,0,0,.05)}
+
+/* ---------- Sticky frosted tab bar + segmented tabs ---------- */
+.ios-tabbar{position:sticky;top:0;z-index:40;padding:calc(.5rem + env(safe-area-inset-top,0px)) .75rem .5rem;background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(60,60,67,.12);box-shadow:0 8px 24px -18px rgba(0,0,0,.25)}
+.ios-tabtrack{background:rgba(118,118,128,.12);border-radius:16px;padding:4px;width:fit-content;max-width:100%;margin-inline:auto}
+.ios-tabbar button[id^="tabBtn-"]{border-radius:12px;border:1px solid transparent;background:transparent;color:#3A3A3C;box-shadow:none;font-weight:600;padding:.55rem .95rem;min-height:40px}
+.ios-tabbar button[id^="tabBtn-"][class*="bg-amber-400"]{background:#FFFFFF;color:#047857;box-shadow:0 1px 3px rgba(0,0,0,.14),0 6px 16px -6px rgba(0,0,0,.18);font-weight:700}
+.ios-tabbar button[id^="tabBtn-"]:hover{color:#047857}
+
+/* ---------- Language toggle (on the dark utility bar) ---------- */
+button[id^="langBtn-"]{border-radius:999px;min-height:30px;padding-inline:.75rem;box-shadow:none}
+button[id^="langBtn-"][class*="bg-emerald-900"]{background:rgba(255,255,255,.10);color:#D1FAE5}
+button[id^="langBtn-"][class*="bg-amber-500"]{background:#F59E0B;color:#1C1C1E;box-shadow:0 2px 8px rgba(245,158,11,.4)}
+
+/* ---------- Grouped cards & inset panels ---------- */
+main .card-shadow{border-radius:20px;border-color:rgba(60,60,67,.10);box-shadow:0 1px 2px rgba(16,24,40,.04),0 16px 40px -16px rgba(16,24,40,.12)}
+main section>div.bg-white,main section.bg-white{border-radius:20px}
+main .bg-slate-50{background-color:#F2F2F7}
+main .bg-emerald-50\/50{background-color:rgba(4,120,87,.05)}
+
+/* ---------- Form controls: iOS fields ---------- */
+main input[type="text"],main input[type="number"],main select,main textarea{border-radius:12px;border-color:rgba(60,60,67,.20);background-color:#FFFFFF;transition:box-shadow .15s ease,border-color .15s ease}
+main input[type="text"]:focus,main input[type="number"]:focus,main select:focus,main textarea:focus{border-color:#047857;box-shadow:0 0 0 4px rgba(4,120,87,.16);outline:none}
+main input[type="checkbox"]{accent-color:#047857}
+main label{color:#1C1C1E}
+
+/* iOS switch for the Haml (pregnancy) toggle */
+#hamlToggle{appearance:none;-webkit-appearance:none;width:51px;height:31px;border-radius:999px;background:#E9E9EC;border:none;position:relative;cursor:pointer;transition:background-color .2s ease;flex:none}
+#hamlToggle::after{content:"";position:absolute;top:2px;inset-inline-start:2px;width:27px;height:27px;border-radius:50%;background:#FFFFFF;box-shadow:0 3px 8px rgba(0,0,0,.15),0 0 1px rgba(0,0,0,.12);transition:transform .2s ease}
+#hamlToggle:checked{background:#059669}
+#htmlRoot[dir="ltr"] #hamlToggle:checked::after{transform:translateX(20px)}
+#htmlRoot[dir="rtl"] #hamlToggle:checked::after{transform:translateX(-20px)}
+
+/* ---------- Buttons ---------- */
+button.bg-emerald-700{border-radius:14px;box-shadow:0 6px 16px -6px rgba(4,120,87,.45)}
+button.bg-amber-500{border-radius:14px}
+button.bg-slate-800{border-radius:14px}
+
+/* Segmented control: deceased-gender toggle (JS swaps classes; detect state by substring) */
+#genderBtn-male,#genderBtn-female{border-radius:12px;min-height:44px;border:1px solid rgba(60,60,67,.14);box-shadow:none}
+#genderBtn-male[class*="bg-white"],#genderBtn-female[class*="bg-white"]{background:#FFFFFF;color:#1C1C1E}
+#genderBtn-male[class*="bg-emerald-700"],#genderBtn-female[class*="bg-emerald-700"]{background:#047857;color:#FFFFFF;border-color:transparent;box-shadow:0 6px 16px -6px rgba(4,120,87,.5)}
+
+/* ---------- Heirs grid: grouped inset list ---------- */
+#heirsGridContainer .bg-slate-50{background-color:#FFFFFF;border-color:rgba(60,60,67,.10);border-radius:18px;box-shadow:0 1px 2px rgba(16,24,40,.04),0 10px 30px -14px rgba(16,24,40,.10)}
+#heirsGridContainer h3{border-color:rgba(60,60,67,.10);color:#1C1C1E}
+#heirsGridContainer .bg-white{background-color:#FFFFFF;border-color:rgba(60,60,67,.10);border-radius:14px}
+#heirsGridContainer .bg-emerald-50{background-color:rgba(4,120,87,.07);border-color:rgba(4,120,87,.45);border-radius:14px}
+#heirsGridContainer button{border-radius:10px}
+#heirsGridContainer .bg-slate-200{background-color:#E9E9EC;color:#1C1C1E;box-shadow:none}
+#heirsGridContainer .bg-emerald-700{background-color:#047857;box-shadow:0 4px 10px -2px rgba(4,120,87,.4)}
+#heirsGridContainer [id^="heirCount-"]{font-weight:700;color:#1C1C1E}
+/* Blocked (mahjoob) cards: clean iOS disabled state at ANY count, incl. 0 */
+#heirsGridContainer .opacity-40 button:disabled{cursor:not-allowed;box-shadow:none}
+
+/* ---------- Results tables & explanation list ---------- */
+main thead[class*="bg-emerald"]{background-color:#F2F2F7;color:#1C1C1E}
+main thead[class*="bg-emerald"] th{font-weight:600;border-color:rgba(60,60,67,.10)}
+#mirathResultTable tbody tr{border-bottom:1px solid rgba(60,60,67,.07)}
+#mirathResultTable tfoot td{background-color:#F8F8FA;font-weight:700}
+#fiqhExplanationsList>div{border-radius:14px;border-color:rgba(60,60,67,.12)}
+#hamlComparisonBox{border-radius:18px}
+
+/* ---------- Toast: iOS banner ---------- */
+#toastBox{top:calc(.75rem + env(safe-area-inset-top,0px))}
+#toastInner{background:rgba(24,24,27,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.16);border-radius:16px;box-shadow:0 16px 40px -8px rgba(0,0,0,.35)}
+
+@media (max-width:640px){
+  /* Steppers: 40px targets (keeps the earlier 36px fix, raised) */
+  #heirsGridContainer button{min-width:2.5rem;min-height:2.5rem}
+  .ios-tabbar button[id^="tabBtn-"]{padding:.5rem .7rem;font-size:.85rem}
+  main .card-shadow{border-radius:18px}
+}
+
+/* ---------- Dark mode (tasteful partial, system surfaces) ---------- */
+@media (prefers-color-scheme:dark){
+  body.bg-slate-50{background-color:#000000;color:#F2F2F7}
+  .ios-tabbar{background:rgba(28,28,30,.78);border-bottom-color:rgba(84,84,88,.35)}
+  .ios-tabtrack{background:rgba(118,118,128,.24)}
+  .ios-tabbar button[id^="tabBtn-"]{color:#EBEBF5}
+  .ios-tabbar button[id^="tabBtn-"][class*="bg-amber-400"]{background:#F2F2F7;color:#047857}
+  main .card-shadow{background-color:#1C1C1E;border-color:rgba(84,84,88,.35);box-shadow:0 1px 2px rgba(0,0,0,.4),0 16px 40px -16px rgba(0,0,0,.55)}
+  main section>div.bg-white,main section.bg-white{background-color:#1C1C1E}
+  main .bg-slate-50{background-color:#2C2C2E}
+  main .bg-white{background-color:#1C1C1E}
+  main .text-slate-900{color:#F2F2F7}
+  main .text-slate-800{color:#EBEBF5}
+  main .text-slate-700{color:#D1D1D6}
+  main .text-slate-600{color:#AEAEB2}
+  main .text-slate-500{color:#98989F}
+  main .text-emerald-950,main .text-emerald-900,main .text-emerald-800{color:#6EE7B7}
+  main .text-amber-900,main .text-amber-950{color:#FCD34D}
+  main .text-rose-900{color:#FDA4AF}
+  main .bg-emerald-50{background-color:rgba(4,120,87,.20)}
+  main .bg-amber-50{background-color:rgba(245,158,11,.13)}
+  main .bg-rose-50{background-color:rgba(255,59,48,.12)}
+  main .bg-emerald-100{background-color:rgba(4,120,87,.28)}
+  main input[type="text"],main input[type="number"],main select,main textarea{background-color:#2C2C2E;color:#F2F2F7;border-color:rgba(84,84,88,.45)}
+  main thead[class*="bg-emerald"]{background-color:#2C2C2E;color:#F2F2F7}
+  #mirathResultTable tbody tr{border-bottom-color:rgba(84,84,88,.30)}
+  #mirathResultTable tfoot td{background-color:#242426}
+  #heirsGridContainer .bg-slate-50{background-color:#1C1C1E;border-color:rgba(84,84,88,.35)}
+  #heirsGridContainer .bg-white{background-color:#1C1C1E;border-color:rgba(84,84,88,.35)}
+  #heirsGridContainer .bg-emerald-50{background-color:rgba(4,120,87,.22);border-color:rgba(110,231,183,.45)}
+  #heirsGridContainer .bg-slate-200{background-color:#3A3A3C;color:#F2F2F7}
+  #heirsGridContainer [id^="heirCount-"]{color:#F2F2F7}
+  #heirsGridContainer h3{color:#F2F2F7;border-color:rgba(84,84,88,.35)}
+  #genderBtn-male[class*="bg-white"],#genderBtn-female[class*="bg-white"]{background:#2C2C2E;color:#F2F2F7;border-color:rgba(84,84,88,.4)}
+  #hamlToggle{background:#3A3A3C}
+  #hamlToggle:checked{background:#059669}
+  #fiqhExplanationsList>div{border-color:rgba(84,84,88,.35)}
+}
+
+/* Print: never print dark or frosted surfaces */
+@media print{
+  .ios-tabbar{display:none!important}
+  main .card-shadow,main .bg-white,main .bg-slate-50{background-color:#FFFFFF!important;box-shadow:none!important}
+}
+
+/* ================================================================
+   CYCLE 2 FIXES (independent audit 2026-11-03)
+   ================================================================ */
+/* M5: the blocked-reason text must stay readable. Darker red in light
+   mode, and a blocked card is muted by its background and label colour
+   instead of whole-card opacity, which washed the reason text out. */
+.text-red-600{color:#D70015}
+#heirsGridContainer .opacity-40{opacity:1;background-color:#EFEFF4;border-color:rgba(60,60,67,.10);box-shadow:none}
+#heirsGridContainer .opacity-40 .text-slate-800{color:#8E8E93}
+#heirsGridContainer .opacity-40 button{opacity:.45}
+/* S7: minimum readable sizes inside the heirs grid. */
+#heirsGridContainer .text-xs{font-size:13px}
+#heirsGridContainer .text-\[10px\]{font-size:11px;line-height:1.35}
+#heirsGridContainer .pe-1{min-width:0;padding-inline-end:.25rem}
+/* Parser report: excluded-heir lines. */
+.smart-excl{color:#D70015}
+/* S5/S6: explicit state hooks and 44px touch targets. */
+.ios-tabbar button[id^="tabBtn-"]{min-height:44px}
+.ios-tabbar button[id^="tabBtn-"].is-active{background:#FFFFFF;color:#047857;box-shadow:0 1px 3px rgba(0,0,0,.14),0 6px 16px -6px rgba(0,0,0,.18);font-weight:700}
+.ios-tabbar button[id^="tabBtn-"]:not(.is-active):hover{background:rgba(4,120,87,.08)}
+button[id^="langBtn-"]{min-height:44px;display:inline-flex;align-items:center}
+/* S8: on phones the tab track scrolls in one row instead of wrapping. */
+@media (max-width:640px){
+  .ios-tabtrack{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .ios-tabtrack::-webkit-scrollbar{display:none}
+  .ios-tabtrack button{flex:0 0 auto}
+}
+/* S3: dark-mode gaps found by the audit. */
+@media (prefers-color-scheme:dark){
+  .text-red-600{color:#FF453A}
+  .smart-excl{color:#FF453A}
+  #heirsGridContainer .opacity-40{background-color:#2C2C2E;border-color:rgba(84,84,88,.35)}
+  #nisabThresholdsBar{background-color:rgba(28,28,30,.85)}
+  main .bg-amber-100{background-color:#2C2C2E}
+  .ios-tabbar button[id^="tabBtn-"].is-active{background:#F2F2F7;color:#047857}
+}
+/* S10: print keeps the hero title readable (backgrounds do not print). */
+@media print{
+  header{background:#ffffff!important;background-image:none!important}
+  header *{color:#111111!important;text-shadow:none!important}
+}
+/* S4: reduced motion. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  button:active{transform:none!important}
+  html{scroll-behavior:auto!important}
+}
+
+/* ================================================================
+   CYCLE 3 FIXES (independent audit 2026-11-03)
+   ================================================================ */
+/* M4: dark-mode surfaces that stayed light while their text flipped. */
+@media (prefers-color-scheme:dark){
+  main .bg-slate-100{background-color:#3A3A3C}
+  main .bg-amber-200\/80{background-color:#3A3A3C}
+}
+/* P1: the is-active hook is the real state mechanism for these controls. */
+button[id^="langBtn-"].is-active{background:#F59E0B;color:#020617;font-weight:700}
+#genderBtn-male.is-active,#genderBtn-female.is-active{background:#047857;color:#FFFFFF;font-weight:700}
+/* P5: visible focus for every interactive element, not only buttons. */
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #047857;outline-offset:1px}
+/* Scrolled state deepens the sticky bar shadow (JS toggles .is-scrolled). */
+.ios-tabbar.is-scrolled{box-shadow:0 14px 34px -14px rgba(0,0,0,.35)}
+/* The frosted bar's content aligns with the 70rem content column. */
+.ios-tabtrack{max-width:70rem;margin-inline:auto}
+/* P2: one inner radius across the Zakat, Munasakha and Guides panels. */
+#panel-mirath .rounded-xl,#panel-zakat .rounded-xl,#panel-munasakha .rounded-xl,#panel-guides .rounded-xl{border-radius:14px}
+
+/* ================================================================
+   CYCLE 4 FIXES (independent audit 2026-11-03)
+   ================================================================ */
+/* M2: alpha tint surfaces flip in dark mode too, mirroring the solids. */
+@media (prefers-color-scheme:dark){
+  main .bg-amber-50\/60{background-color:rgba(245,158,11,.12)}
+  main .bg-amber-50\/70{background-color:rgba(245,158,11,.15)}
+  main .bg-emerald-50\/40{background-color:rgba(4,120,87,.14)}
+  main .bg-emerald-50\/50{background-color:rgba(4,120,87,.17)}
+  main .bg-emerald-50\/60{background-color:rgba(4,120,87,.20)}
+  main .bg-rose-50\/50{background-color:rgba(255,59,48,.12)}
+  /* S6: the teal/purple example buttons join the dark theme. */
+  main .bg-teal-50{background-color:rgba(13,148,136,.18)}
+  main .text-teal-900{color:#5EEAD4}
+  main .hover\:bg-teal-100:hover{background-color:rgba(13,148,136,.28)}
+  main .bg-purple-50{background-color:rgba(168,85,247,.16)}
+  main .text-purple-900{color:#D8B4FE}
+  main .hover\:bg-purple-100:hover{background-color:rgba(168,85,247,.26)}
 }
