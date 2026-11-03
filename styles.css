@@ -277,3 +277,25 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
   main .text-purple-900{color:#D8B4FE}
   main .hover\:bg-purple-100:hover{background-color:rgba(168,85,247,.26)}
 }
+
+/* ================================================================
+   MULTI-PAGE SITE (proper web structure, 2026-11-03)
+   ================================================================ */
+.site-navbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.85);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(60,60,67,.12)}
+.site-navbar.is-scrolled{box-shadow:0 8px 24px -12px rgba(0,0,0,.25)}
+.site-navbar-inner{max-width:80rem;margin:0 auto;display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;flex-wrap:wrap}
+.site-brand{display:flex;align-items:center;gap:.5rem;font-weight:800;color:#064E3B;font-size:1.05rem;text-decoration:none;white-space:nowrap}
+.site-navlinks{display:flex;gap:.25rem;flex-wrap:wrap;margin-inline-start:auto;align-items:center}
+.site-navlinks a{padding:.45rem .8rem;border-radius:999px;font-size:.85rem;font-weight:600;color:#334155;text-decoration:none;transition:background .15s,color .15s}
+.site-navlinks a:hover{background:rgba(4,120,87,.10)}
+.site-navlinks a.is-active{background:#047857;color:#fff}
+.lang-switch{margin-inline-start:.25rem;padding:.35rem .55rem;border-radius:999px;border:1px solid rgba(60,60,67,.22);background:#fff;font-size:.8rem;font-weight:600;color:#064E3B;min-height:34px;cursor:pointer}
+.urdu-text{font-family:var(--font-urdu);line-height:2.05}
+@media (prefers-color-scheme:dark){
+  .site-navbar{background:rgba(28,28,30,.85);border-bottom-color:rgba(255,255,255,.14)}
+  .site-brand{color:#A7F3D0}
+  .site-navlinks a{color:#E2E8F0}
+  .site-navlinks a:hover{background:rgba(255,255,255,.10)}
+  .site-navlinks a.is-active{background:#059669;color:#fff}
+  .lang-switch{background:#1C1C1E;color:#A7F3D0;border-color:rgba(255,255,255,.25)}
+}
