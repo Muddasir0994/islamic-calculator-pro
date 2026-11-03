@@ -979,11 +979,92 @@ git push -u origin main</pre>
       return h.nameUr;
     }
 
+    // ==================== HEIR AVAILABILITY (Hajb) ====================
+    // Mirrors the Hajb-e-Hirman exclusions inside solveHanafiMirath():
+    // an heir the engine would exclude (mahjoob) is shown non-clickable in
+    // the grid, with the reason, and its count stays 0 until the blocking
+    // heir is removed. When nothing blocks it, the option is clickable.
+    function getHeirBlockInfo(src) {
+      const n = id => (src && src[id]) || 0;
+      const blocked = {};
+      // w[] replays the engine's sequential zeroing: once an heir is excluded,
+      // it no longer blocks anyone else (same order as solveHanafiMirath).
+      const w = {};
+      Object.keys(heirCounts).forEach(k => { w[k] = n(k); });
+      const block = (id, ur, en) => { blocked[id] = { ur, en }; w[id] = 0; };
+
+      const son = n('son'), daughter = n('daughter'), grandson = n('grandson'),
+        granddaughter = n('granddaughter'), greatGrandson = n('great_grandson'),
+        greatGranddaughter = n('great_granddaughter'),
+        father = n('father'), mother = n('mother'),
+        pgf = n('paternal_grandfather'), pggf = n('paternal_great_grandfather'),
+        pgm = n('paternal_grandmother'), pggm = n('paternal_great_grandmother'),
+        mgm = n('maternal_grandmother'), mggm = n('maternal_great_grandmother');
+
+      const hasDescendant = (son + daughter + grandson + granddaughter + greatGrandson + greatGranddaughter) > 0;
+      const hasMaleDescendant = (son + grandson + greatGrandson) > 0;
+      const hasMaleAscendant = (father + pgf + pggf) > 0;
+      const maleLineBlock = hasMaleDescendant || hasMaleAscendant;
+      const femaleDescendantPresent = (daughter + granddaughter + greatGranddaughter) > 0;
+
+      // Ascendants (later checks read w[], the post-exclusion counts, like the engine)
+      if (w.paternal_grandfather > 0 && father > 0) block('paternal_grandfather', 'والد کی موجودگی میں محجوب', 'Blocked by the Father');
+      if (w.paternal_great_grandfather > 0 && (father > 0 || w.paternal_grandfather > 0)) block('paternal_great_grandfather', 'والد یا دادا کی موجودگی میں محجوب', 'Blocked by the Father or Grandfather');
+      if (w.paternal_grandmother > 0 && (mother > 0 || father > 0)) block('paternal_grandmother', 'والدہ یا والد کی موجودگی میں محجوب', 'Blocked by the Mother or the Father');
+      if (w.maternal_grandmother > 0 && mother > 0) block('maternal_grandmother', 'والدہ کی موجودگی میں محجوب', 'Blocked by the Mother');
+      if (w.paternal_great_grandmother > 0 && (mother > 0 || father > 0 || w.paternal_grandfather > 0 || w.paternal_grandmother > 0 || w.maternal_grandmother > 0)) block('paternal_great_grandmother', 'قریبی اصول کی موجودگی میں محجوب', 'Blocked by a nearer ascendant');
+      if (w.maternal_great_grandmother > 0 && (mother > 0 || w.paternal_grandmother > 0 || w.maternal_grandmother > 0)) block('maternal_great_grandmother', 'والدہ یا قریبی دادی/نانی کی موجودگی میں محجوب', 'Blocked by the Mother or a nearer grandmother');
+
+      // Descendants
+      if (w.grandson > 0 && son > 0) block('grandson', 'بیٹے کی موجودگی میں محجوب', 'Blocked by the Son');
+      if (w.granddaughter > 0 && son > 0) block('granddaughter', 'بیٹے کی موجودگی میں محجوب', 'Blocked by the Son');
+      else if (w.granddaughter > 0 && daughter >= 2 && w.grandson === 0 && greatGrandson === 0) block('granddaughter', 'دو بیٹیوں کو دو تہائی (2/3) مل جانے سے محجوب', 'Blocked: two Daughters complete the 2/3 share');
+      if (w.great_grandson > 0 && (son > 0 || w.grandson > 0)) block('great_grandson', 'بیٹے یا پوتے کی موجودگی میں محجوب', 'Blocked by the Son or Grandson');
+      if (w.great_granddaughter > 0 && (son > 0 || w.grandson > 0)) block('great_granddaughter', 'بیٹے یا پوتے کی موجودگی میں محجوب', 'Blocked by the Son or Grandson');
+      else if (w.great_granddaughter > 0 && (daughter + w.granddaughter) >= 2 && w.great_grandson === 0) block('great_granddaughter', 'دو تہائی فرض مکمل ہونے سے محجوب', 'Blocked: the 2/3 share is already complete');
+
+      // Siblings
+      if (n('uterine_sibling') > 0 && (hasDescendant || hasMaleAscendant)) block('uterine_sibling', 'اولاد یا والد/دادا کی موجودگی میں محجوب', 'Blocked by descendants or the Father/Grandfather');
+      if (n('real_brother') > 0 && maleLineBlock) block('real_brother', 'بیٹے/پوتے یا والد/دادا کی موجودگی میں محجوب', 'Blocked by a male descendant or the Father/Grandfather');
+      if (n('real_sister') > 0 && maleLineBlock) block('real_sister', 'بیٹے/پوتے یا والد/دادا کی موجودگی میں محجوب', 'Blocked by a male descendant or the Father/Grandfather');
+      const realSisterAsabah = (n('real_sister') > 0 && n('real_brother') === 0 && femaleDescendantPresent && !maleLineBlock);
+      if (n('consanguine_brother') > 0 && (maleLineBlock || n('real_brother') > 0 || realSisterAsabah)) block('consanguine_brother', 'اوپر کے درجے کے وارث کی موجودگی میں محجوب', 'Blocked by a higher-ranking heir');
+      if (n('consanguine_sister') > 0 && (maleLineBlock || n('real_brother') > 0 || realSisterAsabah)) block('consanguine_sister', 'اوپر کے درجے کے وارث کی موجودگی میں محجوب', 'Blocked by a higher-ranking heir');
+      else if (n('consanguine_sister') > 0 && n('real_sister') >= 2 && w.consanguine_brother === 0) block('consanguine_sister', 'دو حقیقی بہنوں کو دو تہائی (2/3) مل جانے سے محجوب', 'Blocked: two Full Sisters complete the 2/3 share');
+      const consanguineSisterAsabah = (n('consanguine_sister') > 0 && n('consanguine_brother') === 0 && femaleDescendantPresent && !maleLineBlock && n('real_sister') === 0);
+
+      // Other agnates: only the nearest available rank stays clickable
+      const higherAgnate = maleLineBlock || n('real_brother') > 0 || n('consanguine_brother') > 0 || realSisterAsabah || consanguineSisterAsabah;
+      const chain = ['real_nephew', 'consanguine_nephew', 'real_paternal_uncle', 'consanguine_paternal_uncle', 'real_paternal_cousin', 'consanguine_paternal_cousin'];
+      let winnerFound = higherAgnate;
+      chain.forEach(id => {
+        if (n(id) > 0) {
+          if (winnerFound) block(id, 'قریبی عصبہ کی موجودگی میں محجوب', 'Blocked by a nearer Asabah heir');
+          else winnerFound = true;
+        }
+      });
+
+      // Dhawu al-Arham: clickable only when no fixed-share (non-spouse) or Asabah heir is active
+      const arhamIds = ['daughters_son', 'daughters_daughter', 'maternal_grandfather', 'sisters_son', 'sisters_daughter', 'brothers_daughter', 'paternal_aunt', 'maternal_aunt', 'maternal_uncle'];
+      const activeRealHeir = Object.keys(heirCounts).some(id => {
+        if (arhamIds.indexOf(id) !== -1 || id === 'wife' || id === 'husband') return false;
+        return n(id) > 0 && !blocked[id];
+      });
+      if (activeRealHeir) {
+        arhamIds.forEach(id => {
+          if (n(id) > 0) block(id, 'اصحاب الفرائض یا عصبات کی موجودگی میں محجوب', 'Blocked while a fixed-share or Asabah heir exists');
+        });
+      }
+
+      return blocked;
+    }
+
     // ==================== UI RENDERING & TABS ====================
     function renderHeirsGrid() {
       const container = document.getElementById('heirsGridContainer');
       if (!container) return;
       let html = '';
+      const blockInfo = getHeirBlockInfo(heirCounts);
 
       HEIR_CATEGORIES.forEach(cat => {
         const catTitle = currentLang === 'en' ? cat.titleEn : cat.titleUr;
@@ -992,24 +1073,36 @@ git push -u origin main</pre>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">`;
 
         cat.heirs.forEach(h => {
-          const disabledByGender = (h.onlyForDeceased && h.onlyForDeceased !== deceasedGender);
-          const count = disabledByGender ? 0 : (heirCounts[h.id] || 0);
+          const genderBlock = (h.onlyForDeceased && h.onlyForDeceased !== deceasedGender);
+          const hajb = (!genderBlock && blockInfo[h.id]) ? blockInfo[h.id] : null;
+          const isBlocked = !!(genderBlock || hajb);
+          if (isBlocked && (heirCounts[h.id] || 0) > 0) heirCounts[h.id] = 0;
+          const count = isBlocked ? 0 : (heirCounts[h.id] || 0);
           const label = getHeirDisplayName(h.id);
           const activeClass = count > 0
             ? 'bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500/40'
             : 'bg-white border-slate-200';
-          const opacityClass = disabledByGender ? 'opacity-40 pointer-events-none' : '';
+          const opacityClass = isBlocked ? 'opacity-40 pointer-events-none' : '';
+          let blockReason = '';
+          if (genderBlock) {
+            blockReason = currentLang === 'en'
+              ? (h.id === 'wife' ? 'Selectable only for a male deceased' : 'Selectable only for a female deceased')
+              : (h.id === 'wife' ? 'صرف مرد میت کے لیے قابلِ انتخاب' : 'صرف خاتون میت کے لیے قابلِ انتخاب');
+          } else if (hajb) {
+            blockReason = currentLang === 'en' ? hajb.en : hajb.ur;
+          }
 
           html += `
             <div class="flex items-center justify-between p-2.5 rounded-xl border transition ${activeClass} ${opacityClass}">
               <div class="pr-1">
                 <span class="text-xs sm:text-sm font-bold text-slate-800 block">${label}</span>
                 ${h.max < 20 ? `<span class="text-[10px] text-slate-500">Max: ${h.max}</span>` : ''}
+                ${blockReason ? `<span class="block text-[10px] leading-snug text-red-600 font-semibold mt-0.5">${blockReason}</span>` : ''}
               </div>
               <div class="flex items-center gap-1.5 shrink-0" dir="ltr">
-                <button type="button" onclick="changeHeirCount('${h.id}', -1)" class="w-7 h-7 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-sm flex items-center justify-center transition">−</button>
+                <button type="button" ${isBlocked ? 'disabled' : ''} onclick="changeHeirCount('${h.id}', -1)" class="w-7 h-7 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-sm flex items-center justify-center transition">−</button>
                 <span id="heirCount-${h.id}" class="w-7 text-center font-bold font-mono-num text-sm ${count > 0 ? 'text-emerald-800' : 'text-slate-500'}">${count}</span>
-                <button type="button" onclick="changeHeirCount('${h.id}', 1)" class="w-7 h-7 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm flex items-center justify-center transition">+</button>
+                <button type="button" ${isBlocked ? 'disabled' : ''} onclick="changeHeirCount('${h.id}', 1)" class="w-7 h-7 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm flex items-center justify-center transition">+</button>
               </div>
             </div>`;
         });
@@ -1023,6 +1116,7 @@ git push -u origin main</pre>
     function changeHeirCount(id, delta) {
       const meta = getHeirMeta(id);
       if (meta.onlyForDeceased && meta.onlyForDeceased !== deceasedGender) return;
+      if (getHeirBlockInfo(heirCounts)[id]) return;
       const next = Math.max(0, Math.min(meta.max || 20, (heirCounts[id] || 0) + delta));
       heirCounts[id] = next;
       renderHeirsGrid();
