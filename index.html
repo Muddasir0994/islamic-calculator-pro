@@ -4,14 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>المیراث و الزکوٰۃ پرو | Advanced Islamic Inheritance & Zakat Calculator (Hanafi)</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    /* Self-hosted fonts: Jameel Noori Nastaleeq for Urdu, Al Qalam Quran Majeed Web for Arabic */
+    @font-face {
+      font-family: 'Jameel Noori Nastaleeq';
+      src: url('fonts/jameel-noori-nastaleeq.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Al Qalam Quran Majeed Web';
+      src: url('fonts/al-qalam-quran.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
     :root {
-      --font-urdu: 'Noto Nastaliq Urdu', 'Amiri', serif;
+      --font-urdu: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', 'Amiri', serif;
       --font-latin: 'Inter', system-ui, -apple-system, sans-serif;
     }
     html[dir="rtl"] body {
@@ -23,7 +38,8 @@
       line-height: 1.6;
     }
     .font-arabic {
-      font-family: 'Amiri', serif;
+      font-family: 'Al Qalam Quran Majeed Web', 'Amiri', serif;
+      line-height: 2;
     }
     .font-mono-num {
       font-family: 'Inter', monospace;
@@ -1325,12 +1341,18 @@ git push -u origin main</pre>
           ]
         };
       } else if (c.great_grandson > 0) {
+        // پوتی جب دو یا زائد بیٹیوں کی وجہ سے اپنے فرض سے محروم ہو تو اپنے درجے سے نیچے کے
+        // عصبہ (پڑپوتے) کے ساتھ عصبہ بالغیر بن جاتی ہے (السراجی)۔
+        const gdJoinsAsabah = c.daughter >= 2 && c.grandson === 0 && c.granddaughter > 0;
         asabahGroup = {
           type: 'عصبہ (2:1)',
-          reason: 'پڑپوتا عصبہ ہے اور پڑپوتی اس کے ساتھ 2:1 سے شریک ہے۔',
+          reason: gdJoinsAsabah
+            ? 'پڑپوتا عصبہ ہے؛ پڑپوتی اس کے ساتھ اور پوتی (جو دو بیٹیوں کی وجہ سے فرض سے محروم تھی) بھی اس کے ساتھ 2:1 سے شریک ہے۔'
+            : 'پڑپوتا عصبہ ہے اور پڑپوتی اس کے ساتھ 2:1 سے شریک ہے۔',
           members: [
             { id: 'great_grandson', count: c.great_grandson, weightPerHead: 2 },
-            ...(c.great_granddaughter > 0 ? [{ id: 'great_granddaughter', count: c.great_granddaughter, weightPerHead: 1 }] : [])
+            ...(c.great_granddaughter > 0 ? [{ id: 'great_granddaughter', count: c.great_granddaughter, weightPerHead: 1 }] : []),
+            ...(gdJoinsAsabah ? [{ id: 'granddaughter', count: c.granddaughter, weightPerHead: 1 }] : [])
           ]
         };
       } else if (c.father > 0) {
@@ -1779,10 +1801,17 @@ git push -u origin main</pre>
         rowsHtml = `<tr><td colspan="9" class="py-6 text-center text-slate-500 font-semibold">براہِ کرم اوپر کم از کم ایک زندہ وارث منتخب کریں۔</td></tr>`;
         tfoot.innerHTML = '';
       } else {
-        result.activeHeirs.forEach(h => {
+        // Largest-remainder rounding so displayed group amounts add up exactly to the net estate
+        const exactGroups = result.activeHeirs.map(h => netEstate * h.shareRatio);
+        const dispGroups = exactGroups.map(x => Math.floor(x));
+        let leftoverRs = Math.round(netEstate) - dispGroups.reduce((a, b) => a + b, 0);
+        exactGroups.map((x, i) => [x - Math.floor(x), i]).sort((a, b) => b[0] - a[0]).forEach(([frac, i]) => {
+          if (leftoverRs > 0) { dispGroups[i] += 1; leftoverRs -= 1; }
+        });
+        result.activeHeirs.forEach((h, idx) => {
           const name = getHeirDisplayName(h.id);
           const pct = (h.shareRatio * 100).toFixed(2);
-          const groupCash = netEstate * h.shareRatio;
+          const groupCash = dispGroups[idx];
           const perPersonCash = groupCash / h.count;
           const groupLandMarlas = totalMarlas * h.shareRatio;
 
@@ -1870,7 +1899,10 @@ git push -u origin main</pre>
         });
 
         const reservedForBaby = Math.max(0, netEstate - totalSafePaid);
-        document.getElementById('hamlComparisonTable').innerHTML = `
+        const hamlWarn = (deceasedGender === 'male' && (heirCounts.wife || 0) === 0)
+          ? `<div class="mb-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs sm:text-sm font-semibold">تنبیہ: حمل کا یہ حساب اس صورت کے لیے ہے جب میت کی بیوہ حاملہ ہو۔ آپ نے ورثاء میں بیوہ منتخب نہیں کی، اس لیے یہ موازنہ صرف فرضی رہنمائی ہے، اس پر تقسیم نہ کریں۔</div>`
+          : '';
+        document.getElementById('hamlComparisonTable').innerHTML = hamlWarn + `
           <table class="w-full text-xs sm:text-sm text-right bg-white rounded-xl overflow-hidden border border-amber-300">
             <thead class="bg-amber-200/80 text-amber-950">
               <tr>
@@ -2003,7 +2035,7 @@ git push -u origin main</pre>
 
       patterns.forEach(p => {
         const m = raw.match(p.regex);
-        if (m) heirCounts[p.id] = parseInt(m[1], 10);
+        if (m) heirCounts[p.id] = Math.min(Math.max(0, parseInt(m[1], 10) || 0), getHeirMeta(p.id).max);
       });
 
       if (!heirCounts.wife && (raw.includes('bewa') || raw.includes('biwi') || raw.includes('wife') || raw.includes('بیوہ'))) {
@@ -2058,6 +2090,10 @@ git push -u origin main</pre>
       renderAssetItems();
     }
 
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
     function renderAssetItems() {
       const box = document.getElementById('assetListContainer');
       if (customAssets.length === 0) {
@@ -2066,7 +2102,7 @@ git push -u origin main</pre>
       }
       box.innerHTML = customAssets.map(a => `
         <div class="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-slate-200">
-          <span class="font-medium text-slate-800">${a.name}</span>
+          <span class="font-medium text-slate-800">${escapeHtml(a.name)}</span>
           <div class="flex items-center gap-3">
             <span class="font-mono-num font-bold text-emerald-800">${formatNum(a.val)}</span>
             <button type="button" onclick="removeAssetItem(${a.id})" class="text-rose-600 hover:text-rose-800 font-bold">✕</button>
@@ -2158,24 +2194,24 @@ git push -u origin main</pre>
       const totalMetalVal = goldVal + silverVal + directMetalVal;
 
       const cashVal =
-        (parseFloat(document.getElementById('zakatCashHand').value) || 0) +
-        (parseFloat(document.getElementById('zakatBankBalance').value) || 0) +
-        (parseFloat(document.getElementById('zakatCommitteeBC').value) || 0) +
-        (parseFloat(document.getElementById('zakatLoanGiven').value) || 0);
+        Math.max(0, parseFloat(document.getElementById('zakatCashHand').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatBankBalance').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatCommitteeBC').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatLoanGiven').value) || 0);
 
       const tradeVal =
-        (parseFloat(document.getElementById('zakatStockGoods').value) || 0) +
-        (parseFloat(document.getElementById('zakatTradingPlots').value) || 0) +
-        (parseFloat(document.getElementById('zakatPartnership').value) || 0) +
-        (parseFloat(document.getElementById('zakatRentalSaved').value) || 0);
+        Math.max(0, parseFloat(document.getElementById('zakatStockGoods').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatTradingPlots').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatPartnership').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatRentalSaved').value) || 0);
 
       const totalAssets = totalMetalVal + cashVal + tradeVal;
 
       const totalLiabilities =
-        (parseFloat(document.getElementById('zakatDebtOwed').value) || 0) +
-        (parseFloat(document.getElementById('zakatCommitteePayable').value) || 0) +
-        (parseFloat(document.getElementById('zakatBillsSalaries').value) || 0) +
-        (parseFloat(document.getElementById('zakatPastUnpaid').value) || 0);
+        Math.max(0, parseFloat(document.getElementById('zakatDebtOwed').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatCommitteePayable').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatBillsSalaries').value) || 0) +
+        Math.max(0, parseFloat(document.getElementById('zakatPastUnpaid').value) || 0);
 
       const netZakatable = Math.max(0, totalAssets - totalLiabilities);
 
@@ -2247,11 +2283,11 @@ git push -u origin main</pre>
       if (g2 === 'male') m2Counts.wife = Math.min(4, sp);
       else m2Counts.husband = Math.min(1, sp);
 
-      m2Counts.son = parseInt(document.getElementById('m2Sons').value, 10) || 0;
-      m2Counts.daughter = parseInt(document.getElementById('m2Daughters').value, 10) || 0;
-      m2Counts.father = parseInt(document.getElementById('m2Father').value, 10) || 0;
-      m2Counts.mother = parseInt(document.getElementById('m2Mother').value, 10) || 0;
-      m2Counts.real_brother = parseInt(document.getElementById('m2Brothers').value, 10) || 0;
+      m2Counts.son = Math.max(0, parseInt(document.getElementById('m2Sons').value, 10) || 0);
+      m2Counts.daughter = Math.max(0, parseInt(document.getElementById('m2Daughters').value, 10) || 0);
+      m2Counts.father = Math.min(1, Math.max(0, parseInt(document.getElementById('m2Father').value, 10) || 0));
+      m2Counts.mother = Math.min(1, Math.max(0, parseInt(document.getElementById('m2Mother').value, 10) || 0));
+      m2Counts.real_brother = Math.max(0, parseInt(document.getElementById('m2Brothers').value, 10) || 0);
 
       const res2 = solveHanafiMirath(m2Counts);
       const box = document.getElementById('munasakhaOutputContainer');
